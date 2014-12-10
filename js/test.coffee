@@ -16,19 +16,18 @@ $ ->
   $(window).resize(resizeStage)
 
   bgLayer = new Kinetic.Layer()
-  bgLayer.add(new Kinetic.Text({
+  bgLayer.add new Kinetic.Text
     x: 15,
     y: 15,
     text: 'Drop your documents here.',
     fontSize: 20,
     fontFamily: 'sans-serif',
     fill: 'gray'
-  }))
+
   bgLayer.on('click', deselectAll)
-  STAGE.add(bgLayer)
 
   PAPER = new Kinetic.Layer()
-  STAGE.add(PAPER)
+  STAGE.add(bgLayer).add(PAPER)
 
   $('body')
   .on('drop', (e) ->
@@ -87,7 +86,7 @@ $ ->
 
 class ScalableImage
   constructor: (img) ->
-    @img = new Kinetic.Image({
+    @img = new Kinetic.Image
       x: img.width / 2 + 20
       y: img.height / 2 + 20
       image: img,
@@ -100,32 +99,27 @@ class ScalableImage
       shadowColor: 'black'
       shadowBlur: 5
       shadowOpacity: 0.5
-    })
-    PAPER.add(@img)
-    PAPER.draw()
+
+    PAPER.add(@img).draw()
 
     @resize = null
     @rotate = null
 
     @isEditing = no
-    @img.on('mousedown', =>
-      @img.draggable(yes))
-    @img.on('click', =>
-      if @isEditing then @removeEditControls() else @startEdit()
-    )
-    @img.on('dragmove', =>
+    @img
+    .on 'mousedown', => @img.draggable(yes)
+    .on 'click', => if @isEditing then @removeEditControls() else @startEdit()
+    .on 'dragmove', =>
       if @isEditing
         @setControlsPosition()
         @resize.draw()
         @rotate.draw()
       else
         @startEdit()
-    )
 
   startEdit: =>
     deselectAll()
-    @img.draggable(yes)
-    @img.shadowBlur(15)
+    @img.draggable(yes).shadowBlur(15)
     @isEditing = yes
     @addEditControls()
     @img.draw()
@@ -150,66 +144,65 @@ class ScalableImage
     return p
 
   addEditControls: =>
-    @rotate = new Kinetic.Group({
+    @rotate = new Kinetic.Group
       width: 20
       height: 20
       draggable: yes
-    })
-    @rotate.add(new Kinetic.Circle({
+
+    @rotate.add new Kinetic.Circle
       radius: 12
       fill: 'white'
       shadowColor: 'black'
       shadowBlur: 5
       shadowOpacity: 0.5
-    }))
+
     rotateImg = new Image()
     rotateImg.onload = =>
-      @rotate.add(new Kinetic.Image({
+      @rotate.add new Kinetic.Image
         image: rotateImg
         width: 20
         height: 20
         offset:
           x: 10
           y: 10
-      }))
+
       @rotate.draw()
     rotateImg.src = 'res/rotate.svg'
 
-    @resize = new Kinetic.Group({
+    @resize = new Kinetic.Group
       width: 20
       height: 20
       draggable: yes
-    })
-    @resize.add(new Kinetic.Circle({
+
+    @resize.add new Kinetic.Circle
       radius: 12
       fill: 'white'
       shadowColor: 'black'
       shadowBlur: 5
       shadowOpacity: 0.5
-    }))
+
     resizeImg = new Image()
     resizeImg.onload = =>
-      @resize.add(new Kinetic.Image({
+      @resize.add new Kinetic.Image
         image: resizeImg
         width: 20
         height: 20
         offset:
           x: 10
           y: 10
-      }))
+
       @resize.draw()
     resizeImg.src = 'res/scale.svg'
     @setControlsPosition()
 
     @rotate.on('dragmove', =>
-      console.log 'rotate'
       degr = Math.atan2(@img.width(), @img.height()) * 180 / Math.PI
+      newRotation = -Math.atan2(@img.x() - @rotate.x(), @img.y() - @rotate.y()) * 180 / Math.PI + degr
       if shifted
         oldRotation = @img.rotation()
-        newRotation = -Math.atan2(@img.x() - @rotate.x(), @img.y() - @rotate.y()) * 180 / Math.PI + degr
         @img.rotate((newRotation - oldRotation) * 0.01)
       else
-        @img.rotation(-Math.atan2(@img.x() - @rotate.x(), @img.y() - @rotate.y()) * 180 / Math.PI + degr)
+        @img.rotation(newRotation)
       @setControlsPosition()
       STAGE.draw()
     )
@@ -226,10 +219,11 @@ class ScalableImage
       width = 2 * pr * Math.cos(rad)
       height = 2 * pr * Math.sin(rad)
 
-      @img.width(width)
-      @img.height(height)
-      @img.offsetX(@img.width() / 2)
-      @img.offsetY(@img.height() / 2)
+      @img
+      .width(width)
+      .height(height)
+      .offsetX(@img.width() / 2)
+      .offsetY(@img.height() / 2)
 
       #rearrange controls and repaint
       @setControlsPosition()
@@ -238,13 +232,11 @@ class ScalableImage
     )
     #@resize.on('dragend', @removeEditControls)
 
-    PAPER.add(@rotate)
-    PAPER.add(@resize)
+    PAPER.add(@rotate).add(@resize)
 
   removeEditControls: =>
     @rotate.remove()
     @resize.remove()
-    @img.shadowBlur(5)
-    @img.draggable(no)
+    @img.shadowBlur(5).draggable(no)
     @isEditing = no
     STAGE.draw()

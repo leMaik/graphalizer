@@ -44,9 +44,8 @@
       fill: 'gray'
     }));
     bgLayer.on('click', deselectAll);
-    STAGE.add(bgLayer);
     PAPER = new Kinetic.Layer();
-    STAGE.add(PAPER);
+    STAGE.add(bgLayer).add(PAPER);
     $('body').on('drop', function(e) {
       var f, files, reader;
       e.stopPropagation();
@@ -140,8 +139,7 @@
         shadowBlur: 5,
         shadowOpacity: 0.5
       });
-      PAPER.add(this.img);
-      PAPER.draw();
+      PAPER.add(this.img).draw();
       this.resize = null;
       this.rotate = null;
       this.isEditing = false;
@@ -149,8 +147,7 @@
         return function() {
           return _this.img.draggable(true);
         };
-      })(this));
-      this.img.on('click', (function(_this) {
+      })(this)).on('click', (function(_this) {
         return function() {
           if (_this.isEditing) {
             return _this.removeEditControls();
@@ -158,8 +155,7 @@
             return _this.startEdit();
           }
         };
-      })(this));
-      this.img.on('dragmove', (function(_this) {
+      })(this)).on('dragmove', (function(_this) {
         return function() {
           if (_this.isEditing) {
             _this.setControlsPosition();
@@ -174,8 +170,7 @@
 
     ScalableImage.prototype.startEdit = function() {
       deselectAll();
-      this.img.draggable(true);
-      this.img.shadowBlur(15);
+      this.img.draggable(true).shadowBlur(15);
       this.isEditing = true;
       this.addEditControls();
       this.img.draw();
@@ -266,14 +261,13 @@
       this.rotate.on('dragmove', (function(_this) {
         return function() {
           var degr, newRotation, oldRotation;
-          console.log('rotate');
           degr = Math.atan2(_this.img.width(), _this.img.height()) * 180 / Math.PI;
+          newRotation = -Math.atan2(_this.img.x() - _this.rotate.x(), _this.img.y() - _this.rotate.y()) * 180 / Math.PI + degr;
           if (shifted) {
             oldRotation = _this.img.rotation();
-            newRotation = -Math.atan2(_this.img.x() - _this.rotate.x(), _this.img.y() - _this.rotate.y()) * 180 / Math.PI + degr;
             _this.img.rotate((newRotation - oldRotation) * 0.01);
           } else {
-            _this.img.rotation(-Math.atan2(_this.img.x() - _this.rotate.x(), _this.img.y() - _this.rotate.y()) * 180 / Math.PI + degr);
+            _this.img.rotation(newRotation);
           }
           _this.setControlsPosition();
           return STAGE.draw();
@@ -290,24 +284,19 @@
           pr = Math.sqrt(Math.pow(_this.resize.x() - _this.img.x(), 2) + Math.pow(_this.resize.y() - _this.img.y(), 2));
           width = 2 * pr * Math.cos(rad);
           height = 2 * pr * Math.sin(rad);
-          _this.img.width(width);
-          _this.img.height(height);
-          _this.img.offsetX(_this.img.width() / 2);
-          _this.img.offsetY(_this.img.height() / 2);
+          _this.img.width(width).height(height).offsetX(_this.img.width() / 2).offsetY(_this.img.height() / 2);
           _this.setControlsPosition();
           _this.rotate.draw();
           return _this.resize.draw();
         };
       })(this));
-      PAPER.add(this.rotate);
-      return PAPER.add(this.resize);
+      return PAPER.add(this.rotate).add(this.resize);
     };
 
     ScalableImage.prototype.removeEditControls = function() {
       this.rotate.remove();
       this.resize.remove();
-      this.img.shadowBlur(5);
-      this.img.draggable(false);
+      this.img.shadowBlur(5).draggable(false);
       this.isEditing = false;
       return STAGE.draw();
     };
