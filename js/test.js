@@ -27,14 +27,14 @@
     var bgLayer;
     STAGE = new Kinetic.Stage({
       container: 'canvas',
-      width: window.innerWidth,
-      height: window.innerHeight
+      width: $('body').width(),
+      height: $('body').height()
     });
     bgLayer = new Kinetic.Layer();
     bgLayer.add(new Kinetic.Text({
       x: 15,
       y: 15,
-      text: 'Drop images here.',
+      text: 'Drop your documents here.',
       fontSize: 20,
       fontFamily: 'sans-serif',
       fill: 'gray'
@@ -133,7 +133,7 @@
         },
         dash: [10, 10],
         shadowColor: 'black',
-        shadowBlur: 2,
+        shadowBlur: 5,
         shadowOpacity: 0.5
       });
       PAPER.add(this.img);
@@ -302,7 +302,7 @@
     ScalableImage.prototype.removeEditControls = function() {
       this.rotate.remove();
       this.resize.remove();
-      this.img.shadowBlur(2);
+      this.img.shadowBlur(5);
       this.img.draggable(false);
       this.isEditing = false;
       return STAGE.draw();

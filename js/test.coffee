@@ -9,15 +9,15 @@ deselectAll = ->
 $ ->
   STAGE = new Kinetic.Stage({
     container: 'canvas',
-    width: window.innerWidth,
-    height: window.innerHeight
+    width: $('body').width(),
+    height: $('body').height()
   });
 
   bgLayer = new Kinetic.Layer()
   bgLayer.add(new Kinetic.Text({
     x: 15,
     y: 15,
-    text: 'Drop images here.',
+    text: 'Drop your documents here.',
     fontSize: 20,
     fontFamily: 'sans-serif',
     fill: 'gray'
@@ -96,7 +96,7 @@ class ScalableImage
         y: img.height / 2
       dash: [10, 10]
       shadowColor: 'black'
-      shadowBlur: 2
+      shadowBlur: 5
       shadowOpacity: 0.5
     })
     PAPER.add(@img)
@@ -242,7 +242,7 @@ class ScalableImage
   removeEditControls: =>
     @rotate.remove()
     @resize.remove()
-    @img.shadowBlur(2)
+    @img.shadowBlur(5)
     @img.draggable(no)
     @isEditing = no
     STAGE.draw()
