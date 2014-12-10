@@ -3,7 +3,22 @@ PAPER = null
 IMAGES = []
 shifted = no
 
-deselectAll = -> image.removeEditControls() for image in IMAGES when image.isEditing
+#http://stackoverflow.com/questions/12092633/pdf-js-rendering-a-pdf-file-using-a-base64-file-source-instead-of-url
+BASE64_MARKER = ';base64,'
+convertDataURIToBinary = (dataURI) ->
+  base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+  base64 = dataURI.substring(base64Index);
+  raw = window.atob(base64);
+  rawLength = raw.length;
+  array = new Uint8Array(new ArrayBuffer(rawLength));
+
+  for i in [0..rawLength-1]
+    array[i] = raw.charCodeAt(i)
+
+  return array
+
+deselectAll = ->
+  image.removeEditControls() for image in IMAGES when image.isEditing
 
 $ ->
   STAGE = new Kinetic.Stage({
@@ -37,18 +52,41 @@ $ ->
         alert 'Only one file at a time, please!'
         return
       f = files[0]
-      if f.type.indexOf('image') != 0
-        alert 'File is not an image!'
-        return
-      console.log 'File added: ' + f.name
+      console.log 'File added: %s (%s)', f.name, f.type
 
-      reader = new FileReader()
-      reader.onload = (e) =>
-        img = new Image()
-        img.onload = () =>
-          IMAGES.push(new ScalableImage(img))
-        img.src = e.target.result
-      reader.readAsDataURL(f)
+      if f.type.indexOf('image') == 0
+        reader = new FileReader()
+        reader.onload = (e) =>
+          img = new Image()
+          img.onload = () =>
+            IMAGES.push(new ScalableImage(img))
+          img.src = e.target.result
+        reader.readAsDataURL(f)
+      else if f.type == 'application/pdf'
+        reader = new FileReader()
+        reader.onload = (e) =>
+          canvas = document.createElement('canvas') #off-screen canvas for rendering
+          ctx = canvas.getContext('2d')
+          PDFJS.getDocument(e.target.result).then((pdf) =>
+            p = prompt 'PDF has ' + pdf.numPages + ' pages, which do you want?', 1
+            console.log 'Page ' + p
+            pdf.getPage(parseInt(p)).then((page) =>
+              viewport = page.getViewport(2.0)
+              canvas.width = viewport.width
+              canvas.height = viewport.height
+              page.render({canvasContext: ctx, viewport: viewport}).then =>
+                data = canvas.toDataURL()
+                img = new Image()
+                img.onload = ->
+                  IMAGES.push(new ScalableImage(img))
+                  console.log 'Done, %dx%d', canvas.width, canvas.height
+                img.src = data
+            )
+          )
+        reader.readAsArrayBuffer(f)
+      else
+        alert 'Unsupported file type'
+        return
     )
   .on('dragover', (e) ->
       e.stopPropagation()
@@ -72,7 +110,7 @@ class ScalableImage
         y: img.height / 2
       dash: [10, 10]
       shadowColor: 'black'
-      shadowBlur: 0
+      shadowBlur: 2
       shadowOpacity: 0.5
     })
     PAPER.add(@img)
@@ -82,7 +120,8 @@ class ScalableImage
     @rotate = null
 
     @isEditing = no
-    @img.on('mousedown', => @img.draggable(yes))
+    @img.on('mousedown', =>
+      @img.draggable(yes))
     @img.on('click', =>
       if @isEditing then @removeEditControls() else @startEdit()
     )
@@ -217,7 +256,7 @@ class ScalableImage
   removeEditControls: =>
     @rotate.remove()
     @resize.remove()
-    @img.shadowBlur(0)
+    @img.shadowBlur(2)
     @img.draggable(no)
     @isEditing = no
     STAGE.draw()
