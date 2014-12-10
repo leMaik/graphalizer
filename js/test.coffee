@@ -3,20 +3,6 @@ PAPER = null
 IMAGES = []
 shifted = no
 
-#http://stackoverflow.com/questions/12092633/pdf-js-rendering-a-pdf-file-using-a-base64-file-source-instead-of-url
-BASE64_MARKER = ';base64,'
-convertDataURIToBinary = (dataURI) ->
-  base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-  base64 = dataURI.substring(base64Index);
-  raw = window.atob(base64);
-  rawLength = raw.length;
-  array = new Uint8Array(new ArrayBuffer(rawLength));
-
-  for i in [0..rawLength-1]
-    array[i] = raw.charCodeAt(i)
-
-  return array
-
 deselectAll = ->
   image.removeEditControls() for image in IMAGES when image.isEditing
 
