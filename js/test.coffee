@@ -7,11 +7,13 @@ deselectAll = ->
   image.removeEditControls() for image in IMAGES when image.isEditing
 
 $ ->
-  STAGE = new Kinetic.Stage({
-    container: 'canvas',
-    width: $('body').width(),
-    height: $('body').height()
-  });
+  resizeStage = ->
+    STAGE.width(window.innerWidth)
+    STAGE.height(window.innerHeight)
+  STAGE = new Kinetic.Stage
+    container: 'canvas'
+  resizeStage();
+  $(window).resize(resizeStage)
 
   bgLayer = new Kinetic.Layer()
   bgLayer.add(new Kinetic.Text({

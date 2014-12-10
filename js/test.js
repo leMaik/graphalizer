@@ -24,12 +24,16 @@
   };
 
   $(function() {
-    var bgLayer;
+    var bgLayer, resizeStage;
+    resizeStage = function() {
+      STAGE.width(window.innerWidth);
+      return STAGE.height(window.innerHeight);
+    };
     STAGE = new Kinetic.Stage({
-      container: 'canvas',
-      width: $('body').width(),
-      height: $('body').height()
+      container: 'canvas'
     });
+    resizeStage();
+    $(window).resize(resizeStage);
     bgLayer = new Kinetic.Layer();
     bgLayer.add(new Kinetic.Text({
       x: 15,
