@@ -1,6 +1,9 @@
 STAGE = null
 PAPER = null
+IMAGES = []
 shifted = no
+
+deselectAll = -> image.removeEditControls() for image in IMAGES when image.isEditing
 
 $ ->
   STAGE = new Kinetic.Stage({
@@ -8,8 +11,9 @@ $ ->
     width: window.innerWidth,
     height: window.innerHeight
   });
-  PAPER = new Kinetic.Layer()
-  PAPER.add(new Kinetic.Text({
+
+  bgLayer = new Kinetic.Layer()
+  bgLayer.add(new Kinetic.Text({
     x: 15,
     y: 15,
     text: 'Drop images here.',
@@ -17,8 +21,11 @@ $ ->
     fontFamily: 'sans-serif',
     fill: 'gray'
   }))
+  bgLayer.on('click', deselectAll)
+  STAGE.add(bgLayer)
+
+  PAPER = new Kinetic.Layer()
   STAGE.add(PAPER)
-  IMAGES = []
 
   $('body')
   .on('drop', (e) ->
@@ -55,39 +62,48 @@ $ ->
 class ScalableImage
   constructor: (img) ->
     @img = new Kinetic.Image({
-      x: 0,
-      y: 0,
+      x: img.width / 2 + 20
+      y: img.height / 2 + 20
       image: img,
       width: img.width,
       height: img.height,
       offset:
         x: img.width / 2
         y: img.height / 2
-      stroke: 'gray'
-      strokeWidth: 2,
-      strokeEnabled: no,
       dash: [10, 10]
+      shadowColor: 'black'
+      shadowBlur: 0
+      shadowOpacity: 0.5
     })
     PAPER.add(@img)
     PAPER.draw()
 
-    @ratio = img.width / img.height
+    @resize = null
+    @rotate = null
+
     @isEditing = no
-    @img.on('click', @onClick)
+    @img.on('mousedown', => @img.draggable(yes))
+    @img.on('click', =>
+      if @isEditing then @removeEditControls() else @startEdit()
+    )
+    @img.on('dragmove', =>
+      if @isEditing
+        @setControlsPosition()
+        @resize.draw()
+        @rotate.draw()
+      else
+        @startEdit()
+    )
 
-  onClick: =>
-    console.log 'click'
-    console.log @img.offsetX()
-    if not @isEditing
-      @img.draggable(yes)
-      @img.strokeEnabled(yes)
-      @isEditing = yes
-      @addEditControls()
-      STAGE.add(@editLayer)
-      @img.draw()
-    else
-      @removeEditControls()
-
+  startEdit: =>
+    deselectAll()
+    @img.draggable(yes)
+    @img.shadowBlur(15)
+    @isEditing = yes
+    @addEditControls()
+    @img.draw()
+    @resize.draw()
+    @rotate.draw()
 
   setControlsPosition: =>
     halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height()) / 2
@@ -99,25 +115,63 @@ class ScalableImage
     @resize.y(@img.y() + halfDiag * Math.sin((@img.rotation() + degr) * Math.PI / 180))
 
   getTopLeftPoint: =>
-    halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height()) / 2
-    degr = Math.atan(@img.height() / @img.width()) * 180 / Math.PI
+    halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height())
+    degr = Math.atan(@img.height() / @img.width())
     p =
-      x: @img.x() - halfDiag * Math.cos((@img.rotation() + degr) * Math.PI / 180)
-      y: @img.y() - halfDiag * Math.sin((@img.rotation() + degr) * Math.PI / 180)
+      x: @img.x() - halfDiag * Math.cos(@img.rotation() * Math.PI / 180 + degr) / 2
+      y: @img.y() - halfDiag * Math.sin(@img.rotation() * Math.PI / 180 + degr) / 2
     return p
 
   addEditControls: =>
-    @editLayer = new Kinetic.Layer()
-    @rotate = new Kinetic.Circle({
-      radius: 10
-      fill: 'gray',
+    @rotate = new Kinetic.Group({
+      width: 20
+      height: 20
       draggable: yes
     })
-    @resize = new Kinetic.Circle({
-      radius: 10
-      fill: 'gray',
+    @rotate.add(new Kinetic.Circle({
+      radius: 12
+      fill: 'white'
+      shadowColor: 'black'
+      shadowBlur: 5
+      shadowOpacity: 0.5
+    }))
+    rotateImg = new Image()
+    rotateImg.onload = =>
+      @rotate.add(new Kinetic.Image({
+        image: rotateImg
+        width: 20
+        height: 20
+        offset:
+          x: 10
+          y: 10
+      }))
+      @rotate.draw()
+    rotateImg.src = 'res/rotate.svg'
+
+    @resize = new Kinetic.Group({
+      width: 20
+      height: 20
       draggable: yes
     })
+    @resize.add(new Kinetic.Circle({
+      radius: 12
+      fill: 'white'
+      shadowColor: 'black'
+      shadowBlur: 5
+      shadowOpacity: 0.5
+    }))
+    resizeImg = new Image()
+    resizeImg.onload = =>
+      @resize.add(new Kinetic.Image({
+        image: resizeImg
+        width: 20
+        height: 20
+        offset:
+          x: 10
+          y: 10
+      }))
+      @resize.draw()
+    resizeImg.src = 'res/scale.svg'
     @setControlsPosition()
 
     @rotate.on('dragmove', =>
@@ -132,36 +186,38 @@ class ScalableImage
       @setControlsPosition()
       STAGE.draw()
     )
-    @rotate.on('dragend', @removeEditControls)
+    #@rotate.on('dragend', @removeEditControls)
 
     @resize.on('dragmove', =>
-      console.log 'resize'
-      p = @getTopLeftPoint()
-      distX = (@resize.x() - p.x)
-      distY = (@resize.y() - p.y)
-      if (distX <= 20 || distY <= 20)
+      if (@resize.x() - @img.x() <= 10 && @resize.y() - @img.y() <= 10)
         @setControlsPosition()
         return
-      @img.width(@ratio * distY)
-      @img.height(@img.width() / @ratio)
+
+      #calculate new width and height
+      rad = Math.atan(@img.height() / @img.width())
+      pr = Math.sqrt(Math.pow(@resize.x() - @img.x(), 2) + Math.pow(@resize.y() - @img.y(), 2))
+      width = 2 * pr * Math.cos(rad)
+      height = 2 * pr * Math.sin(rad)
+
+      @img.width(width)
+      @img.height(height)
       @img.offsetX(@img.width() / 2)
       @img.offsetY(@img.height() / 2)
-      @setControlsPosition()
-      STAGE.draw()
-    )
-    @resize.on('dragend', @removeEditControls)
 
-    @editLayer.add(@rotate)
-    @editLayer.add(@resize)
-    @img.on('dragmove', =>
+      #rearrange controls and repaint
       @setControlsPosition()
-      @editLayer.draw()
+      @rotate.draw()
+      @resize.draw()
     )
+    #@resize.on('dragend', @removeEditControls)
+
+    PAPER.add(@rotate)
+    PAPER.add(@resize)
 
   removeEditControls: =>
-    @editLayer.remove()
-    @img.strokeEnabled(no)
+    @rotate.remove()
+    @resize.remove()
+    @img.shadowBlur(0)
     @img.draggable(no)
     @isEditing = no
     STAGE.draw()
-    @img.off('dragmove', @setControlsPosition)
