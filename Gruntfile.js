@@ -1,20 +1,29 @@
 module.exports = function (grunt) {
     var uglifyFiles = [
         {
-            'build/js/test.min.js': ['build/js/test.js']
+            'build/js/graphalizer.min.js': ['build/js/graphalizer.js']
         }
     ];
 
     grunt.initConfig({
             pkg: grunt.file.readJSON('package.json'),
             coffee: {
-                files: {
-                    expand: true,
-                    flatten: false,
-                    cwd: 'src/',
-                    src: ['js/*.coffee'],
-                    dest: 'build/',
-                    ext: '.js'
+                build: {
+                    options: {
+                        join: true
+                    },
+                    files: {
+                        'build/js/graphalizer.js': ['src/js/*.coffee']
+                    }
+                },
+                debug: {
+                    options: {
+                        sourceMap: true,
+                        join: true
+                    },
+                    files: {
+                        'build/js/graphalizer.min.js': ['src/js/*.coffee']
+                    }
                 }
             },
             uglify: {
@@ -24,14 +33,6 @@ module.exports = function (grunt) {
                         compress: {
                             drop_console: true
                         }
-                    }
-                },
-                debug: {
-                    files: uglifyFiles,
-                    options: {
-                        beautify: true,
-                        mangle: false,
-                        compress: false
                     }
                 }
             },
@@ -80,7 +81,7 @@ module.exports = function (grunt) {
                 },
                 coffee: {
                     files: 'src/js/*.coffee',
-                    tasks: ['copy:src', 'coffee', 'uglify:debug', 'bell']
+                    tasks: ['coffee:debug', 'bell']
                 },
                 anything: {
                     files: ['src/**/*', '!**/*.less', '!**/*.coffee'],
@@ -100,6 +101,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-bell');
 
 //register tasks
-    grunt.registerTask('default', ['clean:before', 'copy:src', 'coffee', 'uglify:build', 'less:build', 'clean:after']);
-    grunt.registerTask('debug', ['clean:before', 'copy:src', 'coffee', 'uglify:debug', 'less:debug', 'clean:after', 'watch']);
+    grunt.registerTask('default', ['clean:before', 'copy:src', 'coffee:build', 'uglify:build', 'less:build', 'clean:after']);
+    grunt.registerTask('debug', ['clean:before', 'copy:src', 'coffee:debug', 'less:debug']);
 };

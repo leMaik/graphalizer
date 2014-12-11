@@ -1,6 +1,7 @@
 STAGE = null
 PAPER = null
 IMAGES = []
+AXES = []
 shifted = no
 
 deselectAll = ->
@@ -10,6 +11,7 @@ $ ->
   resizeStage = ->
     STAGE.width(window.innerWidth)
     STAGE.height(window.innerHeight)
+
   STAGE = new Kinetic.Stage
     container: 'canvas'
   resizeStage();
@@ -27,7 +29,8 @@ $ ->
   bgLayer.on('click', deselectAll)
 
   PAPER = new Kinetic.Layer()
-  STAGE.add(bgLayer).add(PAPER)
+  AXES = new Kinetic.Layer()
+  STAGE.add(bgLayer).add(PAPER).add(AXES);
 
   $('body')
   .on('drop', (e) ->
@@ -57,7 +60,7 @@ $ ->
           PDFJS.getDocument(e.target.result).then((pdf) =>
             p = prompt 'PDF has ' + pdf.numPages + ' pages, which do you want?', 1
             console.log 'Page ' + p
-            pdf.getPage(parseInt(p)).then((page) =>
+            pdf.getPage(parseInt(p, 10)).then((page) =>
               viewport = page.getViewport(2.0)
               canvas.width = viewport.width
               canvas.height = viewport.height
@@ -80,6 +83,11 @@ $ ->
       e.preventDefault()
       e.originalEvent.dataTransfer.dropEffect = 'copy' #/ Explicitly show this is a copy.
     )
+
+  $('#newVAxis').on 'click', ->
+    new VerticalAxis()
+  $('#newHAxis').on 'click', ->
+    new HorizontalAxis()
 
   $(document).on('keyup keydown', (e) ->
     shifted = e.shiftKey)
@@ -107,15 +115,16 @@ class ScalableImage
 
     @isEditing = no
     @img
-    .on 'mousedown', => @img.draggable(yes)
-    .on 'click', => if @isEditing then @removeEditControls() else @startEdit()
-    .on 'dragmove', =>
-      if @isEditing
-        @setControlsPosition()
-        @resize.draw()
-        @rotate.draw()
-      else
-        @startEdit()
+    .on 'mousedown', =>
+        @img.draggable(yes)
+        .on 'click', => if @isEditing then @removeEditControls() else @startEdit()
+          .on 'dragmove', =>
+              if @isEditing
+                @setControlsPosition()
+                @resize.draw()
+                @rotate.draw()
+              else
+                @startEdit()
 
   startEdit: =>
     deselectAll()
