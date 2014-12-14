@@ -4,37 +4,81 @@ class Axis
     @minVal = 0.1
     @maxVal = 100
     @marks = []
+    @position = observable()
+    @controls = {}
 
     AXES.add(@line = @getLine()).draw()
 
 class HorizontalAxis extends Axis
+  constructor: ->
+    super()
+    @position({x: 50, y: 50})
+    @position.bind (v) =>
+      @controls.minCirc?.y(v.y + 40).x(v.x)
+      @controls.maxCirc?.y(v.y + 40).x(v.x + @line.scaleX())
+      @resetMarks()
+      STAGE.draw()
+
   getLine: =>
-    @lineWidth = STAGE.width() - 100
-    @linePos = 50
     @line = new Kinetic.Line
-      points: [0, 0, STAGE.width() - 100, 0]
+      points: [0, 0, 1, 0]
       stroke: 'red'
       strokeWidth: 2
       draggable: yes
+      scaleX: STAGE.width() - 100
       x: 50
       y: 50
     .on 'dragmove', =>
-      @line.x(50)
       console.log 'dragmove'
-      mark.remove() for mark in @marks
-      @createMarks()
-      STAGE.draw()
+      @position({x: @line.x(), y: @line.y()})
     .on 'mouseenter', -> $('body').css('cursor', 'row-resize')
     .on 'mouseleave', -> $('body').css('cursor', '')
+    .on 'click', =>
+      @controls.minCirc = new Kinetic.Circle
+        radius: 12
+        fill: 'white'
+        shadowColor: 'black'
+        shadowBlur: 5
+        shadowOpacity: 0.5
+        draggable: true
+        x: @line.x()
+        y: @line.y() + 40
+      .on 'dragmove', =>
+        @line.scaleX(@line.scaleX() - @controls.minCirc.x() + @line.x())
+        @line.x(@controls.minCirc.x())
+        @controls.minCirc.y(@line.y() + 40)
+        @resetMarks()
+      @controls.maxCirc = new Kinetic.Circle
+        radius: 12
+        fill: 'white'
+        shadowColor: 'black'
+        shadowBlur: 5
+        shadowOpacity: 0.5
+        draggable: true
+        x: @line.x() + @line.scaleX()
+        y: @line.y() + 40
+      .on 'dragmove', =>
+        @line.scaleX(@controls.maxCirc.x() - @line.x())
+        @controls.maxCirc.y(@line.y() + 40)
+        @resetMarks()
+
+      AXES.add(@controls.minCirc).add(@controls.maxCirc).draw()
+
+    @createMarks()
+
+    return @line
+
+  resetMarks: =>
+    mark.remove() for mark in @marks
+    @createMarks()
 
   createMarks: =>
-    last = 1
     v = @minVal
     f = Math.pow(10, Math.floor(Math.log(v)) + 2)
     console.log f
     i = 0
     pos = 0
-    while pos < @lineWidth + @linePos
+    while pos < @line.scaleX() + @line.x()
       a = new Kinetic.Line
         points: [0, 0, 0, 10]
         stroke: 'red'
@@ -59,8 +103,8 @@ class HorizontalAxis extends Axis
         f *= 10
 
   #source: http://www.ibrtses.com/delphi/dmcs.html
-  transformToValue: (x) => @minVal * Math.exp(((x - @linePos) / @lineWidth) * Math.log(@maxVal / @minVal) / Math.log(Math.E))
-  transform: (x) => @linePos + Math.round(Math.log(x / @minVal) / Math.log(@maxVal / @minVal) * @lineWidth)
+  transformToValue: (x) => @minVal * Math.exp(((x - @line.x()) / @line.scaleX()) * Math.log(@maxVal / @minVal) / Math.log(Math.E))
+  transform: (x) => @line.x() + Math.round(Math.log(x / @minVal) / Math.log(@maxVal / @minVal) * @line.scaleX())
 
 class VerticalAxis extends Axis
   getLine: ->
