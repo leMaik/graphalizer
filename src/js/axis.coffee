@@ -110,32 +110,32 @@ class VerticalAxis extends Axis
   constructor: ->
     super()
     @position.bind (v) =>
-      @controls.minCirc?.x(v.x - 40).y(v.y)
-      @controls.maxCirc?.x(v.x - 40).y(v.y + @line.scaleY())
+      @controls.minCirc?.x(v.x - 40).y(v.y + @line.scaleY())
+      @controls.maxCirc?.x(v.x - 40).y(v.y)
       @resetMarks()
       AXES.draw()
     @position({x: 50, y: 50})
 
     @isEditing.bind (v) =>
       if v
-        @controls.minCirc = ImageCircle
+        @controls.maxCirc = ImageCircle
           size: 20
-          image: 'res/left.svg'
+          image: 'res/up.svg'
           x: @line.x() - 40
           y: @line.y()
         .on 'dragmove', =>
-            @line.scaleY(@line.scaleY() - @controls.minCirc.y() + @line.y())
-            @line.y(@controls.minCirc.y())
-            @controls.minCirc.x(@line.x() - 40)
+            @line.scaleY(@line.scaleY() - @controls.maxCirc.y() + @line.y())
+            @line.y(@controls.maxCirc.y())
+            @controls.maxCirc.x(@line.x() - 40)
             @resetMarks()
-        @controls.maxCirc = ImageCircle
+        @controls.minCirc = ImageCircle
           size: 20
-          image: 'res/right.svg'
+          image: 'res/down.svg'
           x: @line.x() - 40
           y: @line.y() + @line.scaleY()
         .on 'dragmove', =>
-            @line.scaleY(@controls.maxCirc.y() - @line.y())
-            @controls.maxCirc.x(@line.x() - 40)
+            @line.scaleY(@controls.minCirc.y() - @line.y())
+            @controls.minCirc.x(@line.x() - 40)
             @resetMarks()
         AXES.add(@controls[c]) for c of @controls
       else
