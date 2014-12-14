@@ -1,8 +1,8 @@
 # Code for axes
 class Axis
   constructor: (@scale = 10) ->
-    @minVal = 0.1
-    @maxVal = 100
+    @minVal = observable(0.1)
+    @maxVal = observable(100)
     @marks = []
     @position = observable()
     @controls = {}
@@ -12,12 +12,19 @@ class Axis
 class HorizontalAxis extends Axis
   constructor: ->
     super()
+    @isEditing = no
     @position({x: 50, y: 50})
     @position.bind (v) =>
       @controls.minCirc?.y(v.y + 40).x(v.x)
       @controls.maxCirc?.y(v.y + 40).x(v.x + @line.scaleX())
       @resetMarks()
-      STAGE.draw()
+      AXES.draw()
+    @minVal.bind =>
+      @resetMarks()
+      AXES.draw()
+    @maxVal.bind =>
+      @resetMarks()
+      AXES.draw()
 
   getLine: =>
     @line = new Kinetic.Line
@@ -31,38 +38,36 @@ class HorizontalAxis extends Axis
     .on 'dragmove', =>
       console.log 'dragmove'
       @position({x: @line.x(), y: @line.y()})
-    .on 'mouseenter', -> $('body').css('cursor', 'row-resize')
+    .on 'mouseenter', -> $('body').css('cursor', 'move')
     .on 'mouseleave', -> $('body').css('cursor', '')
     .on 'click', =>
-      @controls.minCirc = new Kinetic.Circle
-        radius: 12
-        fill: 'white'
-        shadowColor: 'black'
-        shadowBlur: 5
-        shadowOpacity: 0.5
-        draggable: true
-        x: @line.x()
-        y: @line.y() + 40
-      .on 'dragmove', =>
-        @line.scaleX(@line.scaleX() - @controls.minCirc.x() + @line.x())
-        @line.x(@controls.minCirc.x())
-        @controls.minCirc.y(@line.y() + 40)
-        @resetMarks()
-      @controls.maxCirc = new Kinetic.Circle
-        radius: 12
-        fill: 'white'
-        shadowColor: 'black'
-        shadowBlur: 5
-        shadowOpacity: 0.5
-        draggable: true
-        x: @line.x() + @line.scaleX()
-        y: @line.y() + 40
-      .on 'dragmove', =>
-        @line.scaleX(@controls.maxCirc.x() - @line.x())
-        @controls.maxCirc.y(@line.y() + 40)
-        @resetMarks()
+      if @isEditing
+        @controls[c].remove() for c of @controls
+      else
+        @controls.minCirc = ImageCircle
+          size: 20
+          image: 'res/left.svg'
+          x: @line.x()
+          y: @line.y() + 40
+        .on 'dragmove', =>
+            @line.scaleX(@line.scaleX() - @controls.minCirc.x() + @line.x())
+            @line.x(@controls.minCirc.x())
+            @controls.minCirc.y(@line.y() + 40)
+            @resetMarks()
+        @controls.maxCirc = ImageCircle
+          size: 20
+          image: 'res/right.svg'
+          x: @line.x() + @line.scaleX()
+          y: @line.y() + 40
+        .on 'dragmove', =>
+          @line.scaleX(@controls.maxCirc.x() - @line.x())
+          @controls.maxCirc.y(@line.y() + 40)
+          @resetMarks()
 
-      AXES.add(@controls.minCirc).add(@controls.maxCirc).draw()
+        AXES.add(@controls[c]) for c of @controls
+
+      AXES.draw()
+      @isEditing = !@isEditing
 
     @createMarks()
 
@@ -73,7 +78,7 @@ class HorizontalAxis extends Axis
     @createMarks()
 
   createMarks: =>
-    v = @minVal
+    v = @minVal()
     f = Math.pow(10, Math.floor(Math.log(v)) + 2)
     console.log f
     i = 0
@@ -103,8 +108,8 @@ class HorizontalAxis extends Axis
         f *= 10
 
   #source: http://www.ibrtses.com/delphi/dmcs.html
-  transformToValue: (x) => @minVal * Math.exp(((x - @line.x()) / @line.scaleX()) * Math.log(@maxVal / @minVal) / Math.log(Math.E))
-  transform: (x) => @line.x() + Math.round(Math.log(x / @minVal) / Math.log(@maxVal / @minVal) * @line.scaleX())
+  transformToValue: (x) => @minVal() * Math.exp(((x - @line.x()) / @line.scaleX()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
+  transform: (x) => @line.x() + Math.round(Math.log(x / @minVal()) / Math.log(@maxVal() / @minVal()) * @line.scaleX())
 
 class VerticalAxis extends Axis
   getLine: ->
