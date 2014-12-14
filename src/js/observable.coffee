@@ -7,11 +7,10 @@ class Observable
         @value = value
         callback(value) for callback in @callbacks
       return @value
-    fn.bind = @bind
+    fn.bind = (callback) =>
+      @callbacks.push(callback)
+      return fn
 
     return fn
-
-  bind: (callback) =>
-    @callbacks.push(callback)
 
 observable = (value) -> new Observable(value)
