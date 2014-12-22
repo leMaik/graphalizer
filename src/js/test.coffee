@@ -4,33 +4,47 @@ IMAGES = []
 AXES = []
 shifted = no
 
+Layers =
+  PAPER: new Kinetic.Layer()
+  AXES: new Kinetic.Layer()
+
 deselectAll = ->
   image.removeEditControls() for image in IMAGES when image.isEditing
+  axis.isEditing(no) for axis in AXES when axis.isEditing()
+
+resizeStage = ->
+  canvas = $('#canvas')
+  STAGE.width(canvas.width())
+  STAGE.height(canvas.height())
+  console.log "%d x %d", canvas.width(), canvas.height()
+
+  STAGE.find('#background').width(canvas.width()).height(canvas.height()).draw()
+
+$(window).load -> resizeStage()
 
 $ ->
-  resizeStage = ->
-    STAGE.width(window.innerWidth)
-    STAGE.height(window.innerHeight)
-
   STAGE = new Kinetic.Stage
     container: 'canvas'
-  resizeStage();
+
   $(window).resize(resizeStage)
 
   bgLayer = new Kinetic.Layer()
-  bgLayer.add new Kinetic.Text
-    x: 15,
-    y: 15,
-    text: 'Drop your documents here.',
-    fontSize: 20,
-    fontFamily: 'sans-serif',
-    fill: 'gray'
+  bgLayer.add new Kinetic.Rect
+    x: 0
+    y: 0
+    offset:
+      x: 0
+      y: 0
+    fill: '#fff'
+    width: STAGE.width()
+    height: STAGE.height()
+    id: 'background'
 
   bgLayer.on('click', deselectAll)
 
-  PAPER = new Kinetic.Layer()
-  AXES = new Kinetic.Layer()
-  STAGE.add(bgLayer).add(PAPER).add(AXES);
+  Layers.PAPER = new Kinetic.Layer()
+  Layers.AXES = new Kinetic.Layer()
+  STAGE.add(bgLayer).add(Layers.PAPER).add(Layers.AXES);
 
   $('body')
   .on('drop', (e) ->
@@ -85,9 +99,9 @@ $ ->
     )
 
   $('#newVAxis').on 'click', ->
-    new VerticalAxis()
+    AXES.push new VerticalAxis()
   $('#newHAxis').on 'click', ->
-    new HorizontalAxis()
+    AXES.push new HorizontalAxis()
 
   $(document).on('keyup keydown', (e) ->
     shifted = e.shiftKey)
@@ -108,7 +122,7 @@ class ScalableImage
       shadowBlur: 5
       shadowOpacity: 0.5
 
-    PAPER.add(@img).draw()
+    Layers.PAPER.add(@img).draw()
 
     @resize = null
     @rotate = null
@@ -241,7 +255,7 @@ class ScalableImage
     )
     #@resize.on('dragend', @removeEditControls)
 
-    PAPER.add(@rotate).add(@resize)
+    Layers.PAPER.add(@rotate).add(@resize)
 
   removeEditControls: =>
     @rotate.remove()

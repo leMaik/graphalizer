@@ -13,7 +13,7 @@ class Axis
     @controls = {}
     @isEditing = observable(no)
 
-    AXES.add @axis = new Kinetic.Group
+    Layers.AXES.add @axis = new Kinetic.Group
 
     @axis.add(@line = @getLine()).draw()
 
@@ -59,7 +59,7 @@ class HorizontalAxis extends Axis
       @controls.minCirc?.y(v.y + 40).x(v.x)
       @controls.maxCirc?.y(v.y + 40).x(v.x + @line.scaleX())
       @resetMarks()
-      AXES.draw()
+      Layers.AXES.draw()
     @position({x: 50, y: 50})
 
     @isEditing.bind (v) =>
@@ -83,10 +83,10 @@ class HorizontalAxis extends Axis
             @line.scaleX(@controls.maxCirc.x() - @line.x())
             @controls.maxCirc.y(@line.y() + 40)
             @resetMarks()
-        AXES.add(@controls[c]) for c of @controls
+        Layers.AXES.add(@controls[c]) for c of @controls
       else
         @controls[c].remove() for c of @controls
-      AXES.draw()
+      Layers.AXES.draw()
 
   getLine: =>
     @line = new Kinetic.Line
@@ -133,7 +133,7 @@ class HorizontalAxis extends Axis
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: 'gray'
-      AXES.add(a).add(txt)
+      Layers.AXES.add(a).add(txt)
       @marks.push a
       @marks.push txt
 
@@ -160,7 +160,7 @@ class VerticalAxis extends Axis
       @controls.minCirc?.x(v.x - 40).y(v.y + @line.scaleY())
       @controls.maxCirc?.x(v.x - 40).y(v.y)
       @resetMarks()
-      AXES.draw()
+      Layers.AXES.draw()
     @position({x: 50, y: 50})
 
     @isEditing.bind (v) =>
@@ -184,10 +184,10 @@ class VerticalAxis extends Axis
             @line.scaleY(@controls.minCirc.y() - @line.y())
             @controls.minCirc.x(@line.x() - 40)
             @resetMarks()
-        AXES.add(@controls[c]) for c of @controls
+        Layers.AXES.add(@controls[c]) for c of @controls
       else
         @controls[c].remove() for c of @controls
-      AXES.draw()
+      Layers.AXES.draw()
 
   getLine: =>
     @line = new Kinetic.Line
@@ -234,7 +234,7 @@ class VerticalAxis extends Axis
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: 'gray'
-      AXES.add(a).add(txt)
+      Layers.AXES.add(a).add(txt)
       @marks.push a
       @marks.push txt
 
