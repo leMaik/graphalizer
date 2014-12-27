@@ -19,12 +19,12 @@ html, body {
 
 body {
   overflow: hidden;
-  font-family: sans-serif;
+  font-family: "Ubuntu", sans-serif;
   background: @light;
 }
 
 h1, h2 {
-  font-weight: 300;
+  font-weight: lighter;
 }
 
 .header {
@@ -73,36 +73,37 @@ h1, h2 {
   background: @silver;
 
   .group {
-    margin: 0 0 10px;
+    margin: 0;
     clear: both;
+  }
 
-    &.hidden *:not(h1) {
-      display: none;
-    }
+  .ctn {
+    margin: 0;
+    padding: 0;
+    height: auto;
   }
 
   h1 {
     color: @highlight1;
-    font-size: 1em;
-    border-bottom: 2px solid @highlight1;
+    font-size: 1.1em;
     margin: 0 0 10px;
     cursor: pointer;
+    opacity: 0.5;
 
-    &.off {
-      opacity: 0.5;
-      border: 0;
+    &.on {
+      opacity: 1;
     }
   }
 
-  button {
+  button, input {
     background: lighten(@silver, 20%);
     border: 1px solid darken(@silver, 20%);
     border-radius: 3px;
     padding: 5px;
-    cursor: pointer;
     outline: 0;
     margin: 0 0 10px;
     float: left;
+    font-size: 0.9em;
 
     &:hover {
       border: 1px solid darken(@silver, 10%);
@@ -110,6 +111,13 @@ h1, h2 {
 
     &:active {
       border: 1px solid darken(@silver, 25%);
+    }
+  }
+
+  button {
+    cursor: pointer;
+
+    &:active {
       transform: scale(0.99);
     }
 
@@ -132,5 +140,29 @@ h1, h2 {
     &.r {
       float: right;
     }
+  }
+
+  label {
+    clear: left;
+    float: left;
+    width: ~"calc(50% - 5px)";
+    margin: 0 5px 0 0;
+    display: block;
+    font-size: 0.9em;
+    color: @dark;
+    padding: 6px 0;
+
+    &:after {
+      content: ':';
+    }
+  }
+
+  input {
+    clear: right;
+    float: left;
+    width: 50%;
+    display: block;
+    margin: 0 0 10px;
+    font-size: 0.9em;
   }
 }

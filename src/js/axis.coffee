@@ -42,12 +42,10 @@ class Axis
       if @interval() isnt 0
         pos = 0
         v = @minVal()
-        console.log 'min: ' + v
         while v <= @maxVal()
           marks.push
             px: @transform v
             val: v
-          console.log '-> ' + v
           v += @interval()
       return marks
     else
