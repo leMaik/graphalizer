@@ -3,6 +3,7 @@ class Axis
   constructor: () ->
     @minVal = observable(0).bind(@resetMarks)
     @maxVal = observable(100).bind(@resetMarks)
+    @interval = observable(10).bind(@resetMarks)
     @type = observable("linear").bind (v) =>
       if v is "logarithmic" and @minVal() is 0
         @minVal(0.1)
@@ -24,7 +25,6 @@ class Axis
       marks = []
       v = @minVal()
       f = Math.pow(10, Math.floor(Math.log(v)) + 2)
-      console.log f
       i = 0
       pos = 0
       while v <= @maxVal()
@@ -39,13 +39,16 @@ class Axis
       return marks
     else if @type() is "linear"
       marks = []
-      pos = 0
-      v = @minVal()
-      while v <= @maxVal()
-        marks.push
-          px: @transform v
-          val: v
-        v += 10
+      if @interval() isnt 0
+        pos = 0
+        v = @minVal()
+        console.log 'min: ' + v
+        while v <= @maxVal()
+          marks.push
+            px: @transform v
+            val: v
+          console.log '-> ' + v
+          v += @interval()
       return marks
     else
       console.error "Unknown axis type"
@@ -147,9 +150,11 @@ class HorizontalAxis extends Axis
       return @minVal() * Math.exp(((x - @line.x()) / @line.scaleX()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
     else
       console.error "Unknown axis type"
+
   transform: (x) =>
     if @type() is "linear"
-      return @line.x() + Math.round((@line.scaleX() * x) / (@maxVal() - @minVal()))
+      console.log "linear"
+      return @line.x() + (@line.scaleX() / (@maxVal() - @minVal())) * (x - @minVal())
     else if @type() is "logarithmic"
       return @line.x() + Math.round(Math.log(x / @minVal()) / Math.log(@maxVal() / @minVal()) * @line.scaleX())
     else
@@ -248,9 +253,10 @@ class VerticalAxis extends Axis
       @minVal() * Math.exp(((y - @line.y()) / @line.scaleY()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
     else
       console.error "Unknown axis type"
+
   transform: (y) =>
     if @type() is "linear"
-      return @line.y() + @line.scaleY() - Math.round((@line.scaleY() * y) / (@maxVal() - @minVal()))
+      return @line.y() + @line.scaleY() - @line.scaleY() / (@maxVal() - @minVal()) * (y - @minVal())
     else if @type() is "logarithmic"
       return @line.y() + @line.scaleY() - Math.round(Math.log(y / @minVal()) / Math.log(@maxVal() / @minVal()) * @line.scaleY())
     else

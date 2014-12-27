@@ -103,8 +103,9 @@ $ ->
   $('#newHAxis').on 'click', ->
     AXES.push new HorizontalAxis()
 
-  $(document).on('keyup keydown', (e) ->
-    shifted = e.shiftKey)
+  $(document).on 'keyup keydown', (e) ->
+    shifted = e.shiftKey
+    return yes
 
 class ScalableImage
   constructor: (img) ->
