@@ -12,6 +12,8 @@ class Axis
     @position = observable()
     @controls = {}
     @isEditing = observable(no)
+    @isEditing.bind (v) =>
+        GUI.selectedAxis(if v then @ else null)
 
     Layers.AXES.add @axis = new Kinetic.Group
 
@@ -105,7 +107,6 @@ class HorizontalAxis extends Axis
     .on 'mouseleave', =>
         $('body').css('cursor', '')
     .on 'click', =>
-        @type(if @type() is "linear" then "logarithmic" else "linear") #TODO remove this
         @isEditing(!@isEditing())
 
     @createMarks()
@@ -136,6 +137,7 @@ class HorizontalAxis extends Axis
       Layers.AXES.add(a).add(txt)
       @marks.push a
       @marks.push txt
+    Layers.AXES.draw()
 
   #source: http://www.ibrtses.com/delphi/dmcs.html
   transformToValue: (x) =>
@@ -206,7 +208,6 @@ class VerticalAxis extends Axis
     .on 'mouseleave', =>
         $('body').css('cursor', '')
     .on 'click', =>
-        @type(if @type() is "linear" then "logarithmic" else "linear") #TODO remove this
         @isEditing(!@isEditing())
 
     @createMarks()
@@ -237,6 +238,7 @@ class VerticalAxis extends Axis
       Layers.AXES.add(a).add(txt)
       @marks.push a
       @marks.push txt
+    Layers.AXES.draw()
 
   #source: http://www.ibrtses.com/delphi/dmcs.html
   transformToValue: (y) =>

@@ -3,7 +3,7 @@ class Observable
     @callbacks = []
 
     fn = (value) =>
-      if value?
+      if typeof value isnt "undefined"
         @value = value
         callback(value) for callback in @callbacks
       return @value
