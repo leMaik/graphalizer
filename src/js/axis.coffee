@@ -1,10 +1,10 @@
 # Code for axes
 class Axis
   constructor: () ->
-    @minVal = observable(0).bind(@resetMarks)
-    @maxVal = observable(100).bind(@resetMarks)
-    @interval = observable(10).bind(@resetMarks)
-    @type = observable("linear").bind (v) =>
+    @minVal = observable(0).subscribe(@resetMarks)
+    @maxVal = observable(100).subscribe(@resetMarks)
+    @interval = observable(10).subscribe(@resetMarks)
+    @type = observable("linear").subscribe (v) =>
       if v is "logarithmic" and @minVal() is 0
         @minVal(0.1)
       @resetMarks()
@@ -13,7 +13,7 @@ class Axis
     @position = observable()
     @controls = {}
     @isEditing = observable(no)
-    @isEditing.bind (v) =>
+    @isEditing.subscribe (v) =>
         GUI.selectedAxis(if v then @ else null)
 
     Layers.AXES.add @axis = new Kinetic.Group
@@ -58,14 +58,14 @@ class Axis
 class HorizontalAxis extends Axis
   constructor: ->
     super()
-    @position.bind (v) =>
+    @position.subscribe (v) =>
       @controls.minCirc?.y(v.y + 40).x(v.x)
       @controls.maxCirc?.y(v.y + 40).x(v.x + @line.scaleX())
       @resetMarks()
       Layers.AXES.draw()
     @position({x: 50, y: 50})
 
-    @isEditing.bind (v) =>
+    @isEditing.subscribe (v) =>
       if v
         @controls.minCirc = ImageCircle
           size: 20
@@ -161,14 +161,14 @@ class HorizontalAxis extends Axis
 class VerticalAxis extends Axis
   constructor: ->
     super()
-    @position.bind (v) =>
+    @position.subscribe (v) =>
       @controls.minCirc?.x(v.x - 40).y(v.y + @line.scaleY())
       @controls.maxCirc?.x(v.x - 40).y(v.y)
       @resetMarks()
       Layers.AXES.draw()
     @position({x: 50, y: 50})
 
-    @isEditing.bind (v) =>
+    @isEditing.subscribe (v) =>
       if v
         @controls.maxCirc = ImageCircle
           size: 20
