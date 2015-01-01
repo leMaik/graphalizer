@@ -55,6 +55,13 @@ class Axis
     mark.remove() for mark in @marks
     @createMarks()
 
+  remove: =>
+    @axis.remove()
+    AXES.splice(AXES.indexOf(@), 1) #remove this axis from the array
+    if @isEditing()
+      @isEditing(no)
+
+
 class HorizontalAxis extends Axis
   constructor: ->
     super()
@@ -135,7 +142,7 @@ class HorizontalAxis extends Axis
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: 'gray'
-      Layers.AXES.add(a).add(txt)
+      @axis.add(a).add(txt)
       @marks.push a
       @marks.push txt
     Layers.AXES.draw()
@@ -238,7 +245,7 @@ class VerticalAxis extends Axis
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: 'gray'
-      Layers.AXES.add(a).add(txt)
+      @axis.add(a).add(txt)
       @marks.push a
       @marks.push txt
     Layers.AXES.draw()

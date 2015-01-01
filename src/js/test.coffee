@@ -98,11 +98,6 @@ $ ->
       e.originalEvent.dataTransfer.dropEffect = 'copy' #/ Explicitly show this is a copy.
     )
 
-  $('#newVAxis').on 'click', ->
-    AXES.push new VerticalAxis()
-  $('#newHAxis').on 'click', ->
-    AXES.push new HorizontalAxis()
-
   $(document).on 'keyup keydown', (e) ->
     shifted = e.shiftKey
     return yes
