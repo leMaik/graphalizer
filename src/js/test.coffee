@@ -169,79 +169,20 @@ class ScalableImage
     return p
 
   addEditControls: =>
-    @rotate = new Kinetic.Group
-      width: 20
-      height: 20
-      draggable: yes
+    @rotate = ImageCircle
+        size: 20
+        image: 'res/rotate.svg'
+        tooltip: 'Drehen'
 
-    @rotate.add new Kinetic.Circle
-      radius: 12
-      fill: 'white'
-      shadowColor: 'black'
-      shadowBlur: 5
-      shadowOpacity: 0.5
+    @resize = ImageCircle
+        size: 20
+        image: 'res/scale.svg'
+        tooltip: 'Skalieren'
 
-    rotateImg = new Image()
-    rotateImg.onload = =>
-      @rotate.add new Kinetic.Image
-        image: rotateImg
-        width: 20
-        height: 20
-        offset:
-          x: 10
-          y: 10
-
-      @rotate.draw()
-    rotateImg.src = 'res/rotate.svg'
-
-    @resize = new Kinetic.Group
-      width: 20
-      height: 20
-      draggable: yes
-
-    @resize.add new Kinetic.Circle
-      radius: 12
-      fill: 'white'
-      shadowColor: 'black'
-      shadowBlur: 5
-      shadowOpacity: 0.5
-
-    resizeImg = new Image()
-    resizeImg.onload = =>
-      @resize.add new Kinetic.Image
-        image: resizeImg
-        width: 20
-        height: 20
-        offset:
-          x: 10
-          y: 10
-
-      @resize.draw()
-    resizeImg.src = 'res/scale.svg'
-
-    @removeBtn = new Kinetic.Group
-      width: 20
-      height: 20
-
-    @removeBtn.add new Kinetic.Circle
-      radius: 12
-      fill: 'white'
-      shadowColor: 'black'
-      shadowBlur: 5
-      shadowOpacity: 0.5
-
-    removeImg = new Image()
-    removeImg.onload = =>
-      @removeBtn.add new Kinetic.Image
-        image: removeImg
-        width: 20
-        height: 20
-        offset:
-          x: 10
-          y: 10
-
-      @removeBtn.draw()
-    removeImg.src = 'res/delete.svg'
+    @removeBtn = ImageCircle
+        size: 20
+        image: 'res/delete.svg'
+        tooltip: 'Entfernen'
 
     @setControlsPosition()
 
