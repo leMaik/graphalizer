@@ -79,6 +79,7 @@ class HorizontalAxis extends Axis
           image: 'res/left.svg'
           x: @line.x()
           y: @line.y() + 40
+          tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
             @line.scaleX(@line.scaleX() - @controls.minCirc.x() + @line.x())
             @line.x(@controls.minCirc.x())
@@ -89,6 +90,7 @@ class HorizontalAxis extends Axis
           image: 'res/right.svg'
           x: @line.x() + @line.scaleX()
           y: @line.y() + 40
+          tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
             @line.scaleX(@controls.maxCirc.x() - @line.x())
             @controls.maxCirc.y(@line.y() + 40)
@@ -182,6 +184,7 @@ class VerticalAxis extends Axis
           image: 'res/up.svg'
           x: @line.x() - 40
           y: @line.y()
+          tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
             @line.scaleY(@line.scaleY() - @controls.maxCirc.y() + @line.y())
             @line.y(@controls.maxCirc.y())
@@ -192,6 +195,7 @@ class VerticalAxis extends Axis
           image: 'res/down.svg'
           x: @line.x() - 40
           y: @line.y() + @line.scaleY()
+          tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
             @line.scaleY(@controls.minCirc.y() - @line.y())
             @controls.minCirc.x(@line.x() - 40)

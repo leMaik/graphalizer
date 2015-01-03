@@ -122,6 +122,7 @@ class ScalableImage
 
     @resize = null
     @rotate = null
+    @removeBtn = null
 
     @isEditing = no
     @img
@@ -133,6 +134,7 @@ class ScalableImage
                 @setControlsPosition()
                 @resize.draw()
                 @rotate.draw()
+                @removeBtn.draw()
               else
                 @startEdit()
 
@@ -144,6 +146,7 @@ class ScalableImage
     @img.draw()
     @resize.draw()
     @rotate.draw()
+    @removeBtn.draw()
 
   setControlsPosition: =>
     halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height()) / 2
@@ -153,6 +156,9 @@ class ScalableImage
 
     @resize.x(@img.x() + halfDiag * Math.cos((@img.rotation() + degr) * Math.PI / 180))
     @resize.y(@img.y() + halfDiag * Math.sin((@img.rotation() + degr) * Math.PI / 180))
+
+    @removeBtn.x(@img.x() - halfDiag * Math.cos((@img.rotation() - degr) * Math.PI / 180))
+    @removeBtn.y(@img.y() - halfDiag * Math.sin((@img.rotation() - degr) * Math.PI / 180))
 
   getTopLeftPoint: =>
     halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height())
@@ -212,6 +218,31 @@ class ScalableImage
 
       @resize.draw()
     resizeImg.src = 'res/scale.svg'
+
+    @removeBtn = new Kinetic.Group
+      width: 20
+      height: 20
+
+    @removeBtn.add new Kinetic.Circle
+      radius: 12
+      fill: 'white'
+      shadowColor: 'black'
+      shadowBlur: 5
+      shadowOpacity: 0.5
+
+    removeImg = new Image()
+    removeImg.onload = =>
+      @removeBtn.add new Kinetic.Image
+        image: removeImg
+        width: 20
+        height: 20
+        offset:
+          x: 10
+          y: 10
+
+      @removeBtn.draw()
+    removeImg.src = 'res/delete.svg'
+
     @setControlsPosition()
 
     @rotate.on('dragmove', =>
@@ -246,16 +277,25 @@ class ScalableImage
 
       #rearrange controls and repaint
       @setControlsPosition()
-      @rotate.draw()
-      @resize.draw()
+      STAGE.draw()
     )
     #@resize.on('dragend', @removeEditControls)
 
-    Layers.PAPER.add(@rotate).add(@resize)
+    @removeBtn.on 'click', => @remove()
+
+
+    Layers.PAPER.add(@rotate).add(@resize).add(@removeBtn)
 
   removeEditControls: =>
     @rotate.remove()
     @resize.remove()
+    @removeBtn.remove()
     @img.shadowBlur(5).draggable(no)
     @isEditing = no
+    STAGE.draw()
+
+  remove: =>
+    if @isEditing
+      @removeEditControls()
+    @img.remove()
     STAGE.draw()
