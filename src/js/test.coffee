@@ -118,6 +118,27 @@ class ScalableImage
       shadowBlur: 5
       shadowOpacity: 0.5
 
+    @img.on 'click', =>
+      mousePos = STAGE.getPointerPosition()
+      relative = @img.getAbsoluteTransform().copy().invert().point(mousePos) #get mouse position relative to @img
+      original = @img.image();
+      relative =
+        x: relative.x * original.width / @img.width()
+        y: relative.y * original.height / @img.height()
+      #the point 'relative' is now relative to the original image, which is nice
+
+      oc = $('<canvas/>').get(0);
+      oc.width = original.width
+      oc.height = original.height
+      oc.getContext('2d').drawImage(original, 0, 0, original.width, original.height)
+      getPixel = (x, y) -> oc.getContext('2d').getImageData(x, y, 1, 1).data
+
+      #TODO Insert Tim's magic image recognition here!
+
+      pixel = getPixel(relative.x, relative.y)
+      hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
+      console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
+
     Layers.PAPER.add(@img).draw()
 
     @resize = null
