@@ -130,8 +130,9 @@ class ScalableImage
       oc = $('<canvas/>').get(0);
       oc.width = original.width
       oc.height = original.height
-      oc.getContext('2d').drawImage(original, 0, 0, original.width, original.height)
-      getPixel = (x, y) -> oc.getContext('2d').getImageData(x, y, 1, 1).data
+      ctx = oc.getContext('2d')
+      ctx.drawImage(original, 0, 0, original.width, original.height)
+      getPixel = (x, y) -> ctx.getImageData(x, y, 1, 1).data
 
       #TODO Insert Tim's magic image recognition here!
 
