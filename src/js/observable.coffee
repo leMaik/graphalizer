@@ -38,7 +38,7 @@ class Observable
       if @id?
         element.off 'input.' + @id
 
-        @elementBindings = @elementBindings.filter (e) =>
+        @elementBindings = @elementBindings.filter (e) ->
           e.element.get(0) isnt element.get(0)
 
       return fn
