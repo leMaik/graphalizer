@@ -1,6 +1,7 @@
 # Code for axes
 class Axis
   constructor: () ->
+    @name = observable('')
     @minVal = observable(0).subscribe(@resetMarks)
     @maxVal = observable(100).subscribe(@resetMarks)
     @interval = observable(10).subscribe(@resetMarks)

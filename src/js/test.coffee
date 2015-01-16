@@ -139,8 +139,8 @@ class ScalableImage
         hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
         console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
 
-        for axis,i in AXES
-          console.log 'Axis %d: %.2f', i, axis.valueAt(mousePos.x, mousePos.y)
+        for axis in AXES
+          console.log '%s: %.2f', axis.name(), axis.valueAt(mousePos.x, mousePos.y)
       else
         console.log 'nope'
 

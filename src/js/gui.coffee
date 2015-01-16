@@ -33,9 +33,13 @@ $ ->
       GUI.selectedAxis()?.interval(v)
 
   $('#newVAxis').on 'click', ->
-    AXES.push new VerticalAxis()
+    newAxis = new VerticalAxis()
+    newAxis.name 'Achse ' + (AXES.length + 1)
+    AXES.push newAxis
   $('#newHAxis').on 'click', ->
-    AXES.push new HorizontalAxis()
+    newAxis = new HorizontalAxis()
+    newAxis.name 'Achse ' + (AXES.length + 1)
+    AXES.push newAxis
 
   $('#deleteAxis').on 'click', ->
     GUI.selectedAxis().remove()
@@ -45,12 +49,14 @@ $ ->
       old?.minVal.unbind($('#minimum'))
       old?.maxVal.unbind($('#maximum'))
       old?.type.unbind($('#type'))
+      old?.name.unbind($('#name'))
       $('#editAxis').slideUp()
       console.log 'axis unselected'
     else
       GUI.selectedAxis().minVal.bind($('#minimum'), (v) -> parseFloat(v))
       GUI.selectedAxis().maxVal.bind($('#maximum'), (v) -> parseFloat(v))
       GUI.selectedAxis().type.bind($('#type'))
+      GUI.selectedAxis().name.bind($('#name'))
 
       $('#interval').val(v.interval())
 
