@@ -119,26 +119,29 @@ class ScalableImage
       shadowOpacity: 0.5
 
     @img.on 'click', =>
-      mousePos = STAGE.getPointerPosition()
-      relative = @img.getAbsoluteTransform().copy().invert().point(mousePos) #get mouse position relative to @img
-      original = @img.image();
-      relative =
-        x: relative.x * original.width / @img.width()
-        y: relative.y * original.height / @img.height()
-      #the point 'relative' is now relative to the original image, which is nice
+      if GUI.mode() is 'analyze'
+        mousePos = STAGE.getPointerPosition()
+        relative = @img.getAbsoluteTransform().copy().invert().point(mousePos) #get mouse position relative to @img
+        original = @img.image();
+        relative =
+          x: relative.x * original.width / @img.width()
+          y: relative.y * original.height / @img.height()
+        #the point 'relative' is now relative to the original image, which is nice
 
-      oc = $('<canvas/>').get(0);
-      oc.width = original.width
-      oc.height = original.height
-      ctx = oc.getContext('2d')
-      ctx.drawImage(original, 0, 0, original.width, original.height)
-      getPixel = (x, y) -> ctx.getImageData(x, y, 1, 1).data
+        oc = $('<canvas/>').get(0);
+        oc.width = original.width
+        oc.height = original.height
+        ctx = oc.getContext('2d')
+        ctx.drawImage(original, 0, 0, original.width, original.height)
+        getPixel = (x, y) -> ctx.getImageData(x, y, 1, 1).data
 
-      #TODO Insert Tim's magic image recognition here!
+        #TODO Insert Tim's magic image recognition here!
 
-      pixel = getPixel(relative.x, relative.y)
-      hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
-      console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
+        pixel = getPixel(relative.x, relative.y)
+        hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
+        console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
+      else
+        console.log 'nope'
 
     Layers.PAPER.add(@img).draw()
 
@@ -149,16 +152,21 @@ class ScalableImage
     @isEditing = no
     @img
     .on 'mousedown', =>
-        @img.draggable(yes)
-        .on 'click', => if @isEditing then @removeEditControls() else @startEdit()
+        if GUI.mode() is 'setup'
+          @img.draggable(yes)
+          .on 'click', =>
+            if GUI.mode() is 'setup'
+              if @isEditing then @removeEditControls() else @startEdit() #TODO Dont't attach new events every time!
           .on 'dragmove', =>
-              if @isEditing
+            if @isEditing
                 @setControlsPosition()
                 @resize.draw()
                 @rotate.draw()
                 @removeBtn.draw()
               else
                 @startEdit()
+        else
+          @img.draggable(no)
 
   startEdit: =>
     deselectAll()
