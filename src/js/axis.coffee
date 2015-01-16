@@ -170,6 +170,8 @@ class HorizontalAxis extends Axis
   valueAt: (x, y) =>
     if @type() is 'linear'
       return @transformToValue x
+    if @type() is 'logarithmic'
+      return @transformToValue x
 
 class VerticalAxis extends Axis
   constructor: ->
@@ -263,7 +265,7 @@ class VerticalAxis extends Axis
     if @type() is "linear"
       return (@maxVal() - @minVal()) / @line.scaleY() * (@line.scaleY() - y + @line.y()) + @minVal()
     else if @type() is "logarithmic"
-      @minVal() * Math.exp(((y - @line.y()) / @line.scaleY()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
+      @minVal() * Math.exp(((@line.scaleY() - y + @line.y()) / @line.scaleY()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
     else
       console.error "Unknown axis type"
 
@@ -277,4 +279,6 @@ class VerticalAxis extends Axis
 
   valueAt: (x, y) =>
     if @type() is 'linear'
+      return @transformToValue y
+    if @type() is 'logarithmic'
       return @transformToValue y
