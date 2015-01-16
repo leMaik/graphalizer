@@ -134,12 +134,13 @@ class ScalableImage
         ctx = oc.getContext('2d')
         ctx.drawImage(original, 0, 0, original.width, original.height)
         getPixel = (x, y) -> ctx.getImageData(x, y, 1, 1).data
-
         #TODO Insert Tim's magic image recognition here!
-
         pixel = getPixel(relative.x, relative.y)
         hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
         console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
+
+        for axis,i in AXES
+          console.log 'Axis %d: %.2f', i, axis.valueAt(mousePos.x, mousePos.y)
       else
         console.log 'nope'
 

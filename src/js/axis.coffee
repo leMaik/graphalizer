@@ -152,7 +152,7 @@ class HorizontalAxis extends Axis
   #source: http://www.ibrtses.com/delphi/dmcs.html
   transformToValue: (x) =>
     if @type() is "linear"
-      return (@maxVal() - @minVal()) / @line.scaleX() * (x - @line.x())
+      return (@maxVal() - @minVal()) / @line.scaleX() * (x - @line.x()) + @minVal()
     else if @type() is "logarithmic"
       return @minVal() * Math.exp(((x - @line.x()) / @line.scaleX()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
     else
@@ -166,6 +166,10 @@ class HorizontalAxis extends Axis
       return @line.x() + Math.round(Math.log(x / @minVal()) / Math.log(@maxVal() / @minVal()) * @line.scaleX())
     else
       console.error "Unknown axis type"
+
+  valueAt: (x, y) =>
+    if @type() is 'linear'
+      return @transformToValue x
 
 class VerticalAxis extends Axis
   constructor: ->
@@ -257,7 +261,7 @@ class VerticalAxis extends Axis
   #source: http://www.ibrtses.com/delphi/dmcs.html
   transformToValue: (y) =>
     if @type() is "linear"
-      return (@maxVal() - @minVal()) / @line.scaleX() * (y - @line.y())
+      return (@maxVal() - @minVal()) / @line.scaleY() * (@line.scaleY() - y + @line.y()) + @minVal()
     else if @type() is "logarithmic"
       @minVal() * Math.exp(((y - @line.y()) / @line.scaleY()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
     else
@@ -270,3 +274,7 @@ class VerticalAxis extends Axis
       return @line.y() + @line.scaleY() - Math.round(Math.log(y / @minVal()) / Math.log(@maxVal() / @minVal()) * @line.scaleY())
     else
       console.error "Unknown axis type"
+
+  valueAt: (x, y) =>
+    if @type() is 'linear'
+      return @transformToValue y
