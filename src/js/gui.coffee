@@ -3,6 +3,17 @@ GUI = null
 $ ->
   GUI =
     selectedAxis: observable(null)
+    mode: observable('setup')
+
+  $('#setupModeSelector').on 'click', ->
+    $(this).parent().children('.active').removeClass('active')
+    $(this).addClass('active')
+    GUI.mode 'setup'
+
+  $('#analyzeModeSelector').on 'click', ->
+    $(this).parent().children('.active').removeClass('active')
+    $(this).addClass('active')
+    GUI.mode 'analyze'
 
   $('.sidebar h1').on 'click', ->
     $(@).toggleClass('on');
