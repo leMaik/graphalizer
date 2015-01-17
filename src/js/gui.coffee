@@ -39,7 +39,6 @@ $ ->
   $("#name").on "change keyup paste input", ->
     if $(@).val() is "rezilahparG"
       $('body').css 'transform', 'rotateY(180deg)'
-      return
 
   $("#interval").on "change keyup paste input", ->
     v = parseFloat $(@).val()

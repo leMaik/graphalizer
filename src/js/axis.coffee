@@ -16,7 +16,8 @@ class Axis
     @isEditing = observable(no)
     @isEditing.subscribe (v) =>
         GUI.selectedAxis(if v then @ else null)
-
+        if !v
+          deselectAllExcept(@)
     Layers.AXES.add @axis = new Kinetic.Group
 
     @axis.add(@line = @getLine()).draw()

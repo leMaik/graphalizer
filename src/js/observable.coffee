@@ -4,7 +4,7 @@ class Observable
     @elementBindings = []
 
     fn = (value) =>
-      if typeof value isnt "undefined"
+      if value?
         old = @value
         @value = value
         callback(value, old) for callback in @callbacks
