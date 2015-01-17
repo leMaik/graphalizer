@@ -58,14 +58,15 @@ $ ->
     GUI.selectedAxis().remove()
 
   GUI.selectedAxis.subscribe (v, old) ->
-    if v is null
-      old?.minVal.unbind($('#minimum'))
-      old?.maxVal.unbind($('#maximum'))
-      old?.type.unbind($('#type'))
-      old?.name.unbind($('#name'))
+    if old isnt null
+      old.minVal.unbind($('#minimum'))
+      old.maxVal.unbind($('#maximum'))
+      old.type.unbind($('#type'))
+      old.name.unbind($('#name'))
       $('#editAxis').slideUp()
       console.log 'axis unselected'
-    else
+
+    if v isnt null
       GUI.selectedAxis().minVal.bind($('#minimum'), (v) -> parseFloat(v))
       GUI.selectedAxis().maxVal.bind($('#maximum'), (v) -> parseFloat(v))
       GUI.selectedAxis().type.bind($('#type'))
