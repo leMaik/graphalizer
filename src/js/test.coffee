@@ -67,30 +67,13 @@ $ ->
           img.src = e.target.result
         reader.readAsDataURL(f)
       else if f.type == 'application/pdf'
-        reader = new FileReader()
-        reader.onload = (e) =>
-          canvas = document.createElement('canvas') #off-screen canvas for rendering
-          ctx = canvas.getContext('2d')
-          PDFJS.getDocument(e.target.result).then((pdf) =>
-            p = prompt 'PDF has ' + pdf.numPages + ' pages, which do you want?', 1
-            console.log 'Page ' + p
-            pdf.getPage(parseInt(p, 10)).then((page) =>
-              viewport = page.getViewport(2.0)
-              canvas.width = viewport.width
-              canvas.height = viewport.height
-              page.render({canvasContext: ctx, viewport: viewport}).then =>
-                data = canvas.toDataURL()
-                img = new Image()
-                img.onload = ->
-                  IMAGES.push(new ScalableImage(img))
-                  console.log 'Done, %dx%d', canvas.width, canvas.height
-                img.src = data
-            )
-          )
-        reader.readAsArrayBuffer(f)
+        Pdf::readFile f, (pdf) =>
+          p = prompt 'PDF has ' + pdf.pagesCount + ' pages, which do you want?', 1
+          pdf.getPage parseInt(p, 10), (img) ->
+            console.log 'Page %d imported.', parseInt(p, 10)
+            IMAGES.push(new ScalableImage(img))
       else
         alert 'Unsupported file type'
-        return
     )
   .on('dragover', (e) ->
       e.stopPropagation()

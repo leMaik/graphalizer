@@ -5,6 +5,11 @@ $ ->
     selectedAxis: observable(null)
     mode: observable('setup')
 
+  GUI.mode.subscribe (mode) ->
+    if mode is 'analyze'
+      axis.isEditing(no) for axis in AXES
+      doc.removeEditControls() for doc in IMAGES
+
   $('#setupModeSelector').on 'click', ->
     $(this).parent().children('.active').removeClass('active')
     $(this).addClass('active')

@@ -20,4 +20,3 @@ class TransectionSettings
   constructor: (@resolutionPermille = 100) ->
 
   default: new TransectionSettings()
-
