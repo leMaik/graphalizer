@@ -1,3 +1,4 @@
+#this class can also be avoided, simply use dynamic objects and null for invalid coordinates
 class Coordinate
   constructor: (@x, @y) ->
 

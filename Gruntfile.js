@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
     var uglifyFiles = [
         {
-            'build/js/graphalizer.min.js': ['build/js/graphalizer.js']
+            'build/js/graphalizer.min.js': ['build/js/graphalizer.js', 'build/js/graphalizer-templates.js']
         }
     ];
 
@@ -13,7 +13,7 @@ module.exports = function (grunt) {
                         join: true
                     },
                     files: {
-                        'build/js/graphalizer.js': ['src/js/**/*.coffee']
+                        'build/js/graphalizer.js': ['src/coffee/**/*.coffee']
                     }
                 },
                 debug: {
@@ -22,7 +22,7 @@ module.exports = function (grunt) {
                         join: true
                     },
                     files: {
-                        'build/js/graphalizer.min.js': ['src/js/**/*.coffee']
+                        'build/js/graphalizer.js': ['src/coffee/**/*.coffee']
                     }
                 }
             },
@@ -63,7 +63,7 @@ module.exports = function (grunt) {
             dot: {
                 build: {
                     src: ['src/templates/**/*.doT'],
-                    dest: 'build/js/templates.js',
+                    dest: 'build/js/graphalizer-templates.js',
                     options: {
                         variable: "__templates"
                     }
@@ -75,8 +75,8 @@ module.exports = function (grunt) {
                 ],
                 after: [
                     'build/js/*.js',
-                    '!build/js/templates.js',
                     'build/templates',
+                    'build/coffee',
                     '!**/*.min.js'
                 ]
             },
@@ -99,7 +99,7 @@ module.exports = function (grunt) {
                     tasks: ['copy:src', 'less', 'bell']
                 },
                 coffee: {
-                    files: 'src/js/**/*.coffee',
+                    files: 'src/coffee/**/*.coffee',
                     tasks: ['coffee:debug', 'bell']
                 },
                 dot: {
@@ -126,5 +126,5 @@ module.exports = function (grunt) {
 
 //register tasks
     grunt.registerTask('default', ['clean:before', 'copy:src', 'coffee:build', 'dot', 'uglify:build', 'less:build', 'clean:after']);
-    grunt.registerTask('debug', ['clean:before', 'copy:src', 'coffee:debug', 'less:debug', 'dot']);
+    grunt.registerTask('debug', ['clean:before', 'copy:src', 'coffee:debug', 'dot', 'uglify:debug', 'less:debug']);
 };
