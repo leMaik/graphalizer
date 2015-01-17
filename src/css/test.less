@@ -115,7 +115,7 @@ h1, h2 {
     }
   }
 
-  button, input {
+  button, input, a.button {
     background: lighten(@silver, 20%);
     border: 1px solid darken(@silver, 20%);
     border-radius: 3px;
@@ -134,8 +134,11 @@ h1, h2 {
     }
   }
 
-  button {
+  button, a.button {
     cursor: pointer;
+    color: black;
+    font-size: 11pt;
+    line-height: 18px;
 
     &:active {
       transform: scale(0.99);
@@ -165,6 +168,12 @@ h1, h2 {
     &.r {
       float: right;
     }
+  }
+
+  a.button {
+    text-decoration: none;
+    display: block;
+    text-align: center;
   }
 
   label {

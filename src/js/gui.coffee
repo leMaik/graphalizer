@@ -83,6 +83,21 @@ $ ->
       points: POINTS()
     })
 
+  $('#exportCSV').on 'mousedown', ->
+    csv = ''
+    for axis in AXES()
+      csv += axis.name() + ';'
+    csv += '\n'
+    for point in POINTS()
+      for v in point.getValues()
+        csv += v + ';'
+      csv += '\n'
+
+    $(this)
+      .attr('href', "data:application/csv," + encodeURIComponent(csv))
+      .attr('target', '_blank')
+      .attr('download', 'values.csv')
+
 class TemplateWrapper
   constructor: (@rootNode) ->
   get: (id) =>

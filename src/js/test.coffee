@@ -56,10 +56,13 @@ $ ->
       e.preventDefault();
 
       files = e.originalEvent.dataTransfer.files #FileList object (contains Files)
+      if files.length == 0
+        return
       if files.length > 1
         alert 'Only one file at a time, please!'
         return
       f = files[0]
+
       console.log 'File added: %s (%s)', f.name, f.type
 
       if f.type.indexOf('image') == 0
