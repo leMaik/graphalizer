@@ -1,0 +1,12 @@
+<h1>PDF-Import</h1>
+
+<div class="center preview" data-id="preview"></div>
+<div class="pagesel">
+    <label>Seite </label>
+    <input type="number" data-id="page" value="1"/> von <span data-id="pagesCount">?</span>
+</div>
+
+<div class="buttons">
+    <button class="primary" data-id="import">OK</button>
+    <button data-id="cancel">Abbrechen</button>
+</div>

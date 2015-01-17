@@ -4,11 +4,20 @@ $ ->
   GUI =
     selectedAxis: observable(null)
     mode: observable('setup')
+    template: (name, vars) -> __templates[name](vars)
 
   GUI.mode.subscribe (mode) ->
     if mode is 'analyze'
       axis.isEditing(no) for axis in AXES
-      doc.removeEditControls() for doc in IMAGES
+      doc.isEditing(no) for doc in IMAGES
+
+  GUI.showWindow = (content) ->
+    overlay = $('<div class="overlay"><div class="window"/></div>').hide().appendTo('body')
+    new TemplateWrapper overlay.fadeIn(200).find('.window').html(content)
+
+  GUI.closeWindow = ->
+    $('.overlay').fadeOut 200
+    $('.overlay *').off() #make sure all event handlers are detached
 
   $('#setupModeSelector').on 'click', ->
     $(this).parent().children('.active').removeClass('active')
@@ -67,3 +76,8 @@ $ ->
 
       $('#editAxis').slideDown()
       console.log 'axis selected'
+
+class TemplateWrapper
+  constructor: (@rootNode) ->
+  get: (id) =>
+    @rootNode.find('*[data-id=' + id + ']')

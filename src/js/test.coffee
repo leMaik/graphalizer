@@ -63,15 +63,13 @@ $ ->
         reader.onload = (e) =>
           img = new Image()
           img.onload = () =>
-            IMAGES.push(new ScalableImage(img))
+            IMAGES.push new ScalableImage(img)
           img.src = e.target.result
         reader.readAsDataURL(f)
       else if f.type == 'application/pdf'
-        Pdf::readFile f, (pdf) =>
-          p = prompt 'PDF has ' + pdf.pagesCount + ' pages, which do you want?', 1
-          pdf.getPage parseInt(p, 10), (img) ->
-            console.log 'Page %d imported.', parseInt(p, 10)
-            IMAGES.push(new ScalableImage(img))
+        importer = new PdfImport(f)
+        importer.onImportPage = (img) =>
+          IMAGES.push(new ScalableImage(img))
       else
         alert 'Unsupported file type'
     )
@@ -87,12 +85,13 @@ $ ->
 
 class ScalableImage
   constructor: (img) ->
+    dim = Util::getDimensions(img.width, img.height, STAGE.width() - 40, STAGE.height() - 40)
     @img = new Kinetic.Image
       x: img.width / 2 + 20
       y: img.height / 2 + 20
       image: img,
-      width: img.width,
-      height: img.height,
+      width: dim.width,
+      height: dim.height,
       offset:
         x: img.width / 2
         y: img.height / 2
@@ -133,29 +132,30 @@ class ScalableImage
     @rotate = null
     @removeBtn = null
 
-    @isEditing = no
-    @img
-    .on 'mousedown', =>
-        if GUI.mode() is 'setup'
-          @img.draggable(yes)
-          .on 'click', =>
-            if GUI.mode() is 'setup'
-              if @isEditing then @removeEditControls() else @startEdit() #TODO Dont't attach new events every time!
-          .on 'dragmove', =>
-            if @isEditing
-                @setControlsPosition()
-                @resize.draw()
-                @rotate.draw()
-                @removeBtn.draw()
-              else
-                @startEdit()
-        else
-          @img.draggable(no)
+    @isEditing = observable(no).subscribe (v) =>
+      console.log 'isEditing: ' + v
+      if v then @startEdit() else @removeEditControls()
+
+    @img.on 'mousedown', =>
+      if GUI.mode() is 'setup'
+        @img.draggable(yes)
+        .on 'click', => #TODO Dont't attach new events every time!
+          if GUI.mode() is 'setup'
+            @isEditing !@isEditing()
+        .on 'dragmove', =>
+          if @isEditing()
+            @setControlsPosition()
+            @resize.draw()
+            @rotate.draw()
+            @removeBtn.draw()
+          else
+            @isEditing yes
+      else
+        @img.draggable(no)
 
   startEdit: =>
     deselectAll()
     @img.draggable(yes).shadowBlur(15)
-    @isEditing = yes
     @addEditControls()
     @img.draw()
     @resize.draw()
@@ -183,6 +183,7 @@ class ScalableImage
     return p
 
   addEditControls: =>
+    console.log 'addEditControls'
     @rotate = ImageCircle
         size: 20
         image: 'res/rotate.svg'
@@ -246,11 +247,10 @@ class ScalableImage
     @resize.remove()
     @removeBtn.remove()
     @img.shadowBlur(5).draggable(no)
-    @isEditing = no
     STAGE.draw()
 
   remove: =>
-    if @isEditing
+    if @isEditing()
       @removeEditControls()
     @img.remove()
     STAGE.draw()

@@ -34,6 +34,14 @@ module.exports = function (grunt) {
                             drop_console: true
                         }
                     }
+                },
+                debug: {
+                    files: uglifyFiles,
+                    options: {
+                        beautify: true,
+                        mangle: false,
+                        compress: false
+                    }
                 }
             },
             less: {
@@ -52,12 +60,23 @@ module.exports = function (grunt) {
                     }
                 }
             },
+            dot: {
+                build: {
+                    src: ['src/templates/**/*.doT'],
+                    dest: 'build/js/templates.js',
+                    options: {
+                        variable: "__templates"
+                    }
+                }
+            },
             clean: {
                 before: [
                     'build'
                 ],
                 after: [
                     'build/js/*.js',
+                    '!build/js/templates.js',
+                    'build/templates',
                     '!**/*.min.js'
                 ]
             },
@@ -83,8 +102,12 @@ module.exports = function (grunt) {
                     files: 'src/js/**/*.coffee',
                     tasks: ['coffee:debug', 'bell']
                 },
+                dot: {
+                    files: 'src/templates/**/*.doT',
+                    tasks: ['dot', 'bell']
+                },
                 anything: {
-                    files: ['src/**/*', '!**/*.less', '!**/*.coffee'],
+                    files: ['src/**/*', '!**/*.less', '!**/*.coffee', '!**/*.doT'],
                     tasks: ['copy:src', 'bell']
                 }
             }
@@ -92,6 +115,7 @@ module.exports = function (grunt) {
     );
 
 //load plugins
+    grunt.loadNpmTasks('grunt-dot-compiler');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-coffee');
     grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -101,6 +125,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-bell');
 
 //register tasks
-    grunt.registerTask('default', ['clean:before', 'copy:src', 'coffee:build', 'uglify:build', 'less:build', 'clean:after']);
-    grunt.registerTask('debug', ['clean:before', 'copy:src', 'coffee:debug', 'less:debug']);
+    grunt.registerTask('default', ['clean:before', 'copy:src', 'coffee:build', 'dot', 'uglify:build', 'less:build', 'clean:after']);
+    grunt.registerTask('debug', ['clean:before', 'copy:src', 'coffee:debug', 'less:debug', 'dot']);
 };
