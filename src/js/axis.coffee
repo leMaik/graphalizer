@@ -1,4 +1,4 @@
-# Code for axes
+#Code for axes
 class Axis
   constructor: () ->
     @name = observable('')
