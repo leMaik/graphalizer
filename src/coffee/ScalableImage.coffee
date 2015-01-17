@@ -65,11 +65,6 @@ class ScalableImage
         deselectAllExcept(@)
         @img.draggable(yes).shadowBlur(15)
         @addEditControls()
-        @img.draw()
-        @resize.draw()
-        @rotate.draw()
-        @removeBtn.draw()
-        STAGE.draw()
       else
         @removeEditControls()
 
@@ -95,6 +90,8 @@ class ScalableImage
 
     @removeBtn.x(@img.x() - halfDiag * Math.cos((@img.rotation() - degr) * Math.PI / 180))
     @removeBtn.y(@img.y() - halfDiag * Math.sin((@img.rotation() - degr) * Math.PI / 180))
+
+    Layers.PAPER.draw()
 
   getTopLeftPoint: =>
     halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height())
@@ -156,7 +153,6 @@ class ScalableImage
     )
 
     @removeBtn.on 'click', => @remove()
-
 
     Layers.PAPER.add(@rotate).add(@resize).add(@removeBtn).draw()
 

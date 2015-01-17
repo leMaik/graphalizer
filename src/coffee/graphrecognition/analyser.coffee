@@ -10,8 +10,10 @@ class GraphAnalyser
     @graphColor = [0, 0, 0]
 
   findGraphInProximity: (origin) ->
+    bgColor = @environmentSettings.backgroundColor;
+
     # Was the guess already on the graph? Return if so
-    return origin if @isWithinGraph origin
+    return origin if !@toleranceSettings.isTolerated(bgColor, @parentDocument.getPixel(origin))
 
     searchRadius = 0
     while origin.x - searchRadius > 0 and
@@ -22,7 +24,7 @@ class GraphAnalyser
       # Traverse all possible surrounding pixels in  the radius
       for i in [-1*searchRadius..searchRadius+1]
         for j in [-1*searchRadius..searchRadius+1]
-          if (@toleranceSettings.isTolerated(@graphColor, @parentDocument.getPixel(origin.x + i, origin.y + j)))
+          if !@toleranceSettings.isTolerated(bgColor, @parentDocument.getPixel(origin.x + i, origin.y + j))
             return new Coordinate(origin.x + i, origin.y + j)
 
       # The graph has yet not been found -> increase search radius
@@ -33,8 +35,7 @@ class GraphAnalyser
 
   # Checks wether the pixel under 'origin' has roughly the graphColor
   isWithinGraph: (origin) ->
-    return @toleranceSettings.isTolerated(@graphColor,
-                                  @parentDocument.getPixel(origin.x, origin.y))
+    return @toleranceSettings.isTolerated(@graphColor, @parentDocument.getPixel(origin))
 
   # Used in 'findLeftMostBottomPoint
   seekToLeftBottom: (origin) ->
@@ -54,7 +55,7 @@ class GraphAnalyser
     return origin
 
   findLowest: (origin) ->
-    documentHeight = @parentDoument.getHeight()
+    documentHeight = @parentDocument.getHeight()
     while origin.y < documentHeight and isWithinGraph({x: origin.x, y: origin.y+1})
       origin.y++
     return origin
