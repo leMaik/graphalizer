@@ -59,7 +59,7 @@ class Axis
 
   remove: =>
     @axis.remove()
-    AXES.splice(AXES.indexOf(@), 1) #remove this axis from the array
+    AXES.remove(@) #remove this axis from the array
     if @isEditing()
       @isEditing(no)
 

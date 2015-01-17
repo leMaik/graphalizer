@@ -8,7 +8,7 @@ $ ->
 
   GUI.mode.subscribe (mode) ->
     if mode is 'analyze'
-      axis.isEditing(no) for axis in AXES
+      axis.isEditing(no) for axis in AXES()
       doc.isEditing(no) for doc in IMAGES
 
   GUI.showWindow = (content) ->
@@ -47,11 +47,11 @@ $ ->
 
   $('#newVAxis').on 'click', ->
     newAxis = new VerticalAxis()
-    newAxis.name 'Achse ' + (AXES.length + 1)
+    newAxis.name 'Achse ' + (AXES().length + 1)
     AXES.push newAxis
   $('#newHAxis').on 'click', ->
     newAxis = new HorizontalAxis()
-    newAxis.name 'Achse ' + (AXES.length + 1)
+    newAxis.name 'Achse ' + (AXES().length + 1)
     AXES.push newAxis
 
   $('#deleteAxis').on 'click', ->
@@ -75,6 +75,12 @@ $ ->
 
       $('#editAxis').slideDown()
       console.log 'axis selected'
+
+  POINTS.subscribe ->
+    $('#analyzeResults').html GUI.template('resultsTable', {
+      axes: AXES()
+      points: POINTS()
+    })
 
 class TemplateWrapper
   constructor: (@rootNode) ->

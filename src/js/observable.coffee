@@ -7,8 +7,7 @@ class Observable
       if value?
         old = @value
         @value = value
-        callback(value, old) for callback in @callbacks
-        b.fn(value, old) for b in @elementBindings
+        @notifySubscribers(value, old)
       return @value
 
     fn.subscribe = (callback) =>
@@ -49,5 +48,30 @@ class Observable
 
     return fn
 
+  notifySubscribers: (value, old) =>
+    callback(value, old) for callback in @callbacks
+    b.fn(value, old) for b in @elementBindings
+
+class ObservableArray extends Observable
+  constructor: ->
+    fn = super([])
+
+    fn.push = (value) =>
+      @value.push(value)
+      @notifySubscribers @value
+
+    fn.removeAll = =>
+      @value = []
+      @notifySubscribers @value
+
+    fn.remove = (value) =>
+      @value.splice(@value.indexOf(value), 1)
+      @notifySubscribers @value
+
+    return fn
+
 observable = (value) ->
   new Observable(value)
+
+observableArray = (value) ->
+  new ObservableArray(value)

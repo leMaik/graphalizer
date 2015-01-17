@@ -31,12 +31,17 @@ class ScalableImage
         ctx = oc.getContext('2d')
         ctx.drawImage(original, 0, 0, original.width, original.height)
         getPixel = (x, y) -> ctx.getImageData(x, y, 1, 1).data
-        #TODO Insert Tim's magic image recognition here!
+
+        point = new AnalyzeValue(mousePos.x, mousePos.y)
+        Layers.POINTS.add point.kineticElement
+        Layers.POINTS.draw()
+        POINTS.push point
+
         pixel = getPixel(relative.x, relative.y)
         hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
         console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
 
-        for axis in AXES
+        for axis in AXES()
           console.log '%s: %.2f', axis.name(), axis.valueAt(mousePos.x, mousePos.y)
       else
         @isEditing(!@isEditing())
@@ -57,6 +62,7 @@ class ScalableImage
         @resize.draw()
         @rotate.draw()
         @removeBtn.draw()
+        STAGE.draw()
       else
         @removeEditControls()
 
@@ -145,7 +151,7 @@ class ScalableImage
     @removeBtn.on 'click', => @remove()
 
 
-    Layers.PAPER.add(@rotate).add(@resize).add(@removeBtn)
+    Layers.PAPER.add(@rotate).add(@resize).add(@removeBtn).draw()
 
   removeEditControls: =>
     @rotate?.remove()

@@ -1,20 +1,22 @@
 STAGE = null
 PAPER = null
 IMAGES = []
-AXES = []
+AXES = observableArray()
+POINTS = observableArray()
 shifted = no
 
 Layers =
   PAPER: new Kinetic.Layer()
   AXES: new Kinetic.Layer()
+  POINTS: new Kinetic.Layer()
 
 deselectAll = ->
   image.isEditing(no) for image in IMAGES when image.isEditing()
-  axis.isEditing(no) for axis in AXES when axis.isEditing()
+  axis.isEditing(no) for axis in AXES() when axis.isEditing()
 
 deselectAllExcept = (except) ->
   image.isEditing(no) for image in IMAGES when image.isEditing() and image isnt except
-  axis.isEditing(no) for axis in AXES when axis.isEditing() and axis isnt except
+  axis.isEditing(no) for axis in AXES() when axis.isEditing() and axis isnt except
 
 resizeStage = ->
   canvas = $('#canvas')
@@ -46,9 +48,7 @@ $ ->
 
   bgLayer.on('click', deselectAll)
 
-  Layers.PAPER = new Kinetic.Layer()
-  Layers.AXES = new Kinetic.Layer()
-  STAGE.add(bgLayer).add(Layers.PAPER).add(Layers.AXES);
+  STAGE.add(bgLayer).add(Layers.PAPER).add(Layers.AXES).add(Layers.POINTS)
 
   $('body')
   .on('drop', (e) ->
