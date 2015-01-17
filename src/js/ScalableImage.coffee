@@ -18,6 +18,8 @@ class ScalableImage
     @img.on 'click', =>
       if GUI.mode() is 'analyze'
         mousePos = STAGE.getPointerPosition()
+
+        #transform mousePos (relative to canvas) to a point that is relative to the non-rotated, non-zoomed document
         relative = @img.getAbsoluteTransform().copy().invert().point(mousePos) #get mouse position relative to @img
         original = @img.image();
         relative =
@@ -25,19 +27,24 @@ class ScalableImage
           y: relative.y * original.height / @img.height()
         #the point 'relative' is now relative to the original image, which is nice
 
-        oc = $('<canvas/>').get(0);
-        oc.width = original.width
-        oc.height = original.height
-        ctx = oc.getContext('2d')
-        ctx.drawImage(original, 0, 0, original.width, original.height)
-        getPixel = (x, y) -> ctx.getImageData(x, y, 1, 1).data
+        #wrap the image for the analyzer
+        document = new ImageWrapper(original)
 
-        point = new AnalyzeValue(mousePos.x, mousePos.y)
+        #use the analyzer to find the nearest point on the graph
+        fixedClickPos = new GraphAnalyser(document).findGraphInProximity(relative)
+
+        #transform that found point back to canvas coordinates
+        absoluteFixedPos =
+          x: fixedClickPos.x * @img.width() / original.width
+          y: fixedClickPos.y * @img.height() / original.height
+        absoluteFixedPos = @img.getAbsoluteTransform().copy().point(absoluteFixedPos)
+
+        point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
         Layers.POINTS.add point.kineticElement
         Layers.POINTS.draw()
         POINTS.push point
 
-        pixel = getPixel(relative.x, relative.y)
+        pixel = document.getPixel(relative.x, relative.y)
         hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
         console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
 

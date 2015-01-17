@@ -19,4 +19,4 @@ class EnvironmentSettings
 class TransectionSettings
   constructor: (@resolutionPermille = 100) ->
 
-  default: new TransectionSettings()
+  default: -> new TransectionSettings()

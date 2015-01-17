@@ -4,14 +4,14 @@
 # All 'find' methods are not meant to be called and are generally helper functions for analyse.
 
 class GraphAnalyser
-  constructor: (@parentDocument, @toleranceSettings = defaultToleranceSettings(),
-                @environmentSettings = defaultEnvironmentSettings(),
-                @transectionSettings = defaultTransectionSettings()) ->
+  constructor: (@parentDocument, @toleranceSettings = ToleranceSettings::default(),
+                @environmentSettings = EnvironmentSettings::default(),
+                @transectionSettings = TransectionSettings::default()) ->
     @graphColor = [0, 0, 0]
 
   findGraphInProximity: (origin) ->
     # Was the guess already on the graph? Return if so
-    return origin if @toleranceSettings.isTolerated @parentDocument.getPixel(origin.x, origin.y)
+    return origin if @isWithinGraph origin
 
     searchRadius = 0
     while origin.x - searchRadius > 0 and
@@ -20,10 +20,9 @@ class GraphAnalyser
           origin.y + searchRadius < @parentDocument.getHeight()
 
       # Traverse all possible surrounding pixels in  the radius
-      for i in [-1*radius..radius+1]
-        for j in [-1*radius..radius+1]
-          if (@tolerance.isTolerated(@environmentSettings.backgroundColor,
-              @parentDocument.getPixel(origin.x + i, origin.y + j)))
+      for i in [-1*searchRadius..searchRadius+1]
+        for j in [-1*searchRadius..searchRadius+1]
+          if (@toleranceSettings.isTolerated(@graphColor, @parentDocument.getPixel(origin.x + i, origin.y + j)))
             return new Coordinate(origin.x + i, origin.y + j)
 
       # The graph has yet not been found -> increase search radius
@@ -34,7 +33,7 @@ class GraphAnalyser
 
   # Checks wether the pixel under 'origin' has roughly the graphColor
   isWithinGraph: (origin) ->
-    return @tolerance.isTolerated(@graphColor,
+    return @toleranceSettings.isTolerated(@graphColor,
                                   @parentDocument.getPixel(origin.x, origin.y))
 
   # Used in 'findLeftMostBottomPoint
