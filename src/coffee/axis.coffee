@@ -9,6 +9,8 @@ class Axis
       if v is "logarithmic" and @minVal() is 0
         @minVal(0.1)
       @resetMarks()
+    @axisMode = observable('').subscribe (v) =>
+      @resetMarks()
 
     @marks = []
     @position = observable()
@@ -28,32 +30,32 @@ class Axis
       if @minVal() is 0
         return marks
 
-      mode = 'x1000'
-      if mode is 'x2'
-        v = @minVal()
-        while v <= @maxVal()
-          marks.push
-            px: @transform v
-            val: v
-          v *= 2
-      else if mode is 'x10'
-        v = @minVal()
-        while v <= @maxVal()
-          marks.push
-            px: @transform v
-            val: v
-          v *= 10
-      else
-        v = @minVal()
-        f = Math.pow(10, Math.floor Util::log10 v) #major pitfall! Math.log == ln
-        while v <= @maxVal()
-          for i in [1..10]
-            v = f * i
-            if @minVal() <= v <= @maxVal()
-              marks.push
-                px: @transform v
-                val: v
-          f *= 10
+      switch @axisMode()
+        when "x2"
+          v = @minVal()
+          while v <= @maxVal()
+            marks.push
+              px: @transform v
+              val: v
+            v *= 2
+        when "x10"
+          v = @minVal()
+          while v <= @maxVal()
+            marks.push
+              px: @transform v
+              val: v
+            v *= 10
+        else
+          v = @minVal()
+          f = Math.pow(10, Math.floor Util::log10 v) #major pitfall! Math.log == ln
+          while v <= @maxVal()
+            for i in [1..10]
+              v = f * i
+              if @minVal() <= v <= @maxVal()
+                marks.push
+                  px: @transform v
+                  val: v
+            f *= 10
       return marks
     else if @type() is "linear"
       marks = []
