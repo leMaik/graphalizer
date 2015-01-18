@@ -4,7 +4,8 @@ class Observable
     @elementBindings = []
 
     fn = (value) =>
-      if value?
+      if typeof value isnt "undefined"
+        alert 'set to' + arguments[0]
         old = @value
         @value = value
         @notifySubscribers(value, old)
