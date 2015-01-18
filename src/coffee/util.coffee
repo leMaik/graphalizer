@@ -16,3 +16,5 @@ class Util
       newWidth = width / height * newHeight
 
     return { width: newWidth, height: newHeight }
+
+  log10: (x) -> Math.log(x) / Math.log(10) #Math.log is to base e

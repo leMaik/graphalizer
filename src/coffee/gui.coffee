@@ -43,7 +43,7 @@ $ ->
     group.find('h1').removeClass('on')
     group.find('.ctn').slideUp()
 
-  $('.sidebar h1').on 'click', ->
+  $('.sidebar .group:not(.notmanual) h1').on 'click', ->
     toggleGroup $(@).parent()
 
   $('.sidebar .group .ctn').hide()

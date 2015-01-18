@@ -15,9 +15,9 @@ class Axis
     @controls = {}
     @isEditing = observable(no)
     @isEditing.subscribe (v) =>
-        GUI.selectedAxis(if v then @ else null)
-        if !v
-          deselectAllExcept(@)
+      if v
+        deselectAllExcept(@)
+      GUI.selectedAxis(if v then @ else null)
     Layers.AXES.add @axis = new Kinetic.Group
 
     @axis.add(@line = @getLine()).draw()
@@ -25,18 +25,34 @@ class Axis
   getMarks: =>
     if @type() is "logarithmic"
       marks = []
-      v = @minVal()
-      f = Math.pow(10, Math.floor(Math.log(v)) + 2)
-      i = 0
-      pos = 0
-      while v <= @maxVal()
-        marks.push
-          px: @transform v
-          val: v
-        v += f
-        i++
-        if i == 9
-          i = 0
+      if @minVal() is 0
+        return marks
+
+      mode = 'x1000'
+      if mode is 'x2'
+        v = @minVal()
+        while v <= @maxVal()
+          marks.push
+            px: @transform v
+            val: v
+          v *= 2
+      else if mode is 'x10'
+        v = @minVal()
+        while v <= @maxVal()
+          marks.push
+            px: @transform v
+            val: v
+          v *= 10
+      else
+        v = @minVal()
+        f = Math.pow(10, Math.floor Util::log10 v) #major pitfall! Math.log == ln
+        while v <= @maxVal()
+          for i in [1..10]
+            v = f * i
+            if @minVal() <= v <= @maxVal()
+              marks.push
+                px: @transform v
+                val: v
           f *= 10
       return marks
     else if @type() is "linear"
@@ -142,7 +158,7 @@ class HorizontalAxis extends Axis
       txt = new Kinetic.Text
         x: mark.px - 5
         y: @line.y() + 7
-        text: Math.round(mark.val * 10) / 10
+        text: mark.val.toFixed(2)
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: 'gray'
@@ -253,7 +269,7 @@ class VerticalAxis extends Axis
       txt = new Kinetic.Text
         x: @line.x() - 25
         y: mark.px - 4
-        text: Math.round(mark.val * 10) / 10
+        text: mark.val.toFixed(2)
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: 'gray'
