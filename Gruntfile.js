@@ -13,7 +13,7 @@ module.exports = function (grunt) {
                         join: true
                     },
                     files: {
-                        'build/js/graphalizer.js': ['src/coffee/**/*.coffee']
+                        'build/js/graphalizer.js': ['src/coffee/observable.coffee', 'src/coffee/**/*.coffee']
                     }
                 },
                 debug: {
@@ -22,7 +22,7 @@ module.exports = function (grunt) {
                         join: true
                     },
                     files: {
-                        'build/js/graphalizer.js': ['src/coffee/**/*.coffee']
+                        'build/js/graphalizer.js': ['src/coffee/observable.coffee', 'src/coffee/**/*.coffee']
                     }
                 }
             },

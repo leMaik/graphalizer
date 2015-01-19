@@ -1,4 +1,4 @@
-class Observable
+class ObservableVariable
   constructor: (@value) ->
     @callbacks = []
     @elementBindings = []
@@ -52,7 +52,7 @@ class Observable
     callback(value, old) for callback in @callbacks
     b.fn(value, old) for b in @elementBindings
 
-class ObservableArray extends Observable
+class ObservableArray extends ObservableVariable
   constructor: ->
     fn = super([])
 
@@ -70,8 +70,21 @@ class ObservableArray extends Observable
 
     return fn
 
+class Observable
+  constructor: ->
+    @changed = no
+    @callbacks = []
+  setChanged: (changed) =>
+    @changed = changed
+  notifyObservers: (force) =>
+    if force or @changed
+      callback(@) for callback in @callbacks
+      @changed = no
+  subscribe: (callback) =>
+    @callbacks.push callback
+
 observable = (value) ->
-  new Observable(value)
+  new ObservableVariable(value)
 
 observableArray = (value) ->
   new ObservableArray(value)

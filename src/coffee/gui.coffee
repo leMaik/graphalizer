@@ -92,11 +92,13 @@ $ ->
       console.log 'nothing selected'
       hideGroup $('#editAxis')
 
-  POINTS.subscribe ->
+  GUI.updateAllValues = ->
     $('#analyzeResults').html GUI.template('resultsTable', {
       axes: AXES()
       points: POINTS()
     })
+
+  POINTS.subscribe GUI.updateAllValues
 
   $('#exportCSV').on 'mousedown', ->
     csv = ''

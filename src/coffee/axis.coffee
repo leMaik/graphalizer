@@ -1,6 +1,7 @@
 #Code for axes
-class Axis
-  constructor: () ->
+class Axis extends Observable
+  constructor: ->
+    super()
     @name = observable('')
     @minVal = observable(0).subscribe(@resetMarks)
     @maxVal = observable(100).subscribe(@resetMarks)
@@ -14,6 +15,7 @@ class Axis
 
     @marks = []
     @position = observable()
+    @subscribe GUI.updateAllValues
     @controls = {}
     @isEditing = observable(no)
     @isEditing.subscribe (v) =>
@@ -105,6 +107,7 @@ class HorizontalAxis extends Axis
             @line.x(@controls.minCirc.x())
             @controls.minCirc.y(@line.y() + 40)
             @resetMarks()
+            @notifyObservers(yes)
         @controls.maxCirc = ImageCircle
           size: 20
           image: 'res/right.svg'
@@ -115,6 +118,7 @@ class HorizontalAxis extends Axis
             @line.scaleX(@controls.maxCirc.x() - @line.x())
             @controls.maxCirc.y(@line.y() + 40)
             @resetMarks()
+            @notifyObservers(yes)
         Layers.AXES.add(@controls[c]) for c of @controls
       else
         @controls[c].remove() for c of @controls
@@ -130,8 +134,8 @@ class HorizontalAxis extends Axis
       x: 50
       y: 50
     .on 'dragmove', =>
-        console.log 'dragmove'
         @position({x: @line.x(), y: @line.y()})
+        @notifyObservers(yes)
     .on 'mouseenter', ->
         $('body').css('cursor', 'move')
     .on 'mouseleave', =>
@@ -216,6 +220,7 @@ class VerticalAxis extends Axis
             @line.y(@controls.maxCirc.y())
             @controls.maxCirc.x(@line.x() - 40)
             @resetMarks()
+            @notifyObservers(yes)
         @controls.minCirc = ImageCircle
           size: 20
           image: 'res/down.svg'
@@ -226,6 +231,7 @@ class VerticalAxis extends Axis
             @line.scaleY(@controls.minCirc.y() - @line.y())
             @controls.minCirc.x(@line.x() - 40)
             @resetMarks()
+            @notifyObservers(yes)
         Layers.AXES.add(@controls[c]) for c of @controls
       else
         @controls[c].remove() for c of @controls
@@ -241,8 +247,8 @@ class VerticalAxis extends Axis
       x: 50
       y: 50
     .on 'dragmove', =>
-        console.log 'dragmove'
         @position({x: @line.x(), y: @line.y()})
+        @notifyObservers(yes)
     .on 'mouseenter', ->
         $('body').css('cursor', 'move')
     .on 'mouseleave', =>
