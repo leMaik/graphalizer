@@ -34,15 +34,25 @@ class ScalableImage
         fixedClickPos = new GraphAnalyser(document).findGraphInProximity(relative)
 
         #transform that found point back to canvas coordinates
-        absoluteFixedPos =
-          x: fixedClickPos.x * @img.width() / original.width
-          y: fixedClickPos.y * @img.height() / original.height
-        absoluteFixedPos = @img.getAbsoluteTransform().copy().point(absoluteFixedPos)
+        transformBack = (pos) =>
+          newPos =
+            x: pos.x * @img.width() / original.width
+            y: pos.y * @img.height() / original.height
+          newPos = @img.getAbsoluteTransform().copy().point(newPos)
 
-        point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
-        Layers.POINTS.add point.kineticElement
-        Layers.POINTS.draw()
-        POINTS.push point
+        for rawPoint in new GraphAnalyser(document).analyse(fixedClickPos)
+          console.log rawPoint
+          absolutePos = transformBack rawPoint
+          point = new AnalyzeValue(absolutePos.x, absolutePos.y)
+          Layers.POINTS.add point.kineticElement
+          Layers.POINTS.draw()
+          POINTS.push point
+
+        #absoluteFixedPos = transformBack fixedClickPos
+        #point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
+        #Layers.POINTS.add point.kineticElement
+        #Layers.POINTS.draw()
+        #POINTS.push point
 
         pixel = document.getPixel(relative.x, relative.y)
         hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139

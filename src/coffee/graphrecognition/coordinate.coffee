@@ -4,4 +4,7 @@ class Coordinate
 
   invalid: -> new Coordinate(-1, -1)
 
+  isInvalid: (c) ->
+    c.x == -1 and c.y == -1
+
   fromObject: (obj) -> new Coordinate(obj.x, obj.y)

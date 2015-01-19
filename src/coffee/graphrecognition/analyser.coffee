@@ -9,7 +9,7 @@ class GraphAnalyser
                 @transectionSettings = TransectionSettings::default()) ->
     @graphColor = [0, 0, 0]
 
-  findGraphInProximity: (origin) ->
+  findGraphInProximity: (origin) =>
     bgColor = @environmentSettings.backgroundColor;
 
     # Was the guess already on the graph? Return if so
@@ -34,102 +34,102 @@ class GraphAnalyser
     return Coordinate::invalid()
 
   # Checks wether the pixel under 'origin' has roughly the graphColor
-  isWithinGraph: (origin) ->
-    return @toleranceSettings.isTolerated(@graphColor, @parentDocument.getPixel(origin))
+  isWithinGraph: =>
+    point = switch arguments.length
+      when 1 then arguments[0]
+      when 2 then {x: arguments[0], y: arguments[1]}
+    return @toleranceSettings.isTolerated(@graphColor, @parentDocument.getPixel point)
 
   # Used in 'findLeftMostBottomPoint
-  seekToLeftBottom: (origin) ->
-    if isWithinGraph(origin.x - 1, origin.y + 1) # 1
+  seekToLeftBottom: (origin) =>
+    if @isWithinGraph(origin.x - 1, origin.y + 1) # 1
       return new Coordinate(origin.x - 1, origin.y + 1)
-    if isWithinGraph(origin.x - 1, origin.y    ) # 2
+    if @isWithinGraph(origin.x - 1, origin.y    ) # 2
       return new Coordinate(origin.x - 1, origin.y)
-    if isWithinGraph(origin.x - 1, origin.y - 1) # 3
+    if @isWithinGraph(origin.x - 1, origin.y - 1) # 3
       return new Coordinate(origin.x - 1, origin.y - 1)
-    if isWithinGraph(origin.x    , origin.y + 1) # 4
+    if @isWithinGraph(origin.x    , origin.y + 1) # 4
       return new Coordinate(origin.x, origin.y + 1)
     return Coordinate::invalid()
 
-  findUpMost: (origin) ->
-    while origin.y > 0 and isWithinGraph({x: origin.x, y: origin.y-1})
+  findUpMost: (origin) =>
+    while origin.y > 0 and @isWithinGraph({x: origin.x, y: origin.y-1})
       origin.y--
     return origin
 
-  findLowest: (origin) ->
+  findLowest: (origin) =>
     documentHeight = @parentDocument.getHeight()
-    while origin.y < documentHeight and isWithinGraph({x: origin.x, y: origin.y+1})
+    while origin.y < documentHeight and @isWithinGraph({x: origin.x, y: origin.y+1})
       origin.y++
     return origin
 
   # This function seeks the leftest and most bottom point of the graph
   # under the passed position (origin). It uses the member variable 'graphColor'
   # to differentiate between graph and no graph
-  findLeftMostBottomPoint: (origin) ->
+  findLeftMostBottomPoint: (origin) =>
     while origin.x > 0 and origin.y < @parentDocument.getHeight() and origin.y > 0
-      nextPoint = seekToLeftBottom()
-      invalidPosition = (nextPoint == Coordinate::invalid())
-      if invalidPosition && isWithinGraph({x: origin.x, y: origin.y - 1})
-        origin.y = findUpMost(origin).y
+      nextPoint = @seekToLeftBottom(origin)
+      invalidPosition = Coordinate::isInvalid nextPoint
+      if invalidPosition && @isWithinGraph({x: origin.x, y: origin.y - 1})
+        origin.y = @findUpMost(origin).y
         previousX = origin.x
-        origin = seekLeftToBottom()
-        if previousX == origin.x
-          break
+        origin = @seekToLeftBottom(origin)
+        break if previousX is origin.x
       else if invalidPosition
         break
-    return findLowest(origin)
+      origin = nextPoint
+    return @findLowest(origin)
 
-  findNextRight: (origin) ->
+  findNextRight: (origin) =>
     if (origin.x == @parentDocument.getWidth() - 1)
       return origin
 
-    max_y = findUpMost(origin).y
+    max = @findUpMost(origin)
     y = origin.y
     while y >= max.y
-      return {x: origin.x + 1, y: y} if isWithinGraph({x: origion.x + 1, y: y})
+      return {x: origin.x + 1, y: y} if @isWithinGraph({x: origin.x + 1, y: y})
       y--
     return origin
 
   # Seperates the graph into several points
-  transsectGraph: (origin) ->
-    set = new PixelSet()
+  transsectGraph: (origin) =>
+    console.log 'origion: %d,%d', origin.x, origin.y
+    set = []
     curPoint = origin
     count = 0
     nextPoint = new Coordinate(0, 0)
     docWidth = @parentDocument.getWidth()
 
     while true
-      nextPoint = findNextRight(curPoint)
-      if (nextPoint == curPoint)
-        break
+      nextPoint = @findNextRight(curPoint)
+      console.log 'nextPoint = %d/%d', nextPoint.x, nextPoint.y
+      break if (nextPoint.x is curPoint.x and nextPoint.y is curPoint.y)
 
-      uppest = findUpMost(nextPoint)
-      lowest = findLowest(nextPoint)
+      uppest = @findUpMost(nextPoint)
+      lowest = @findLowest(nextPoint)
 
-      if count % (docWidth /  (docWidth * transection.resolutionPermille / 1000)) == 0
-        set.push({x: uppest.x, y: (uppest.y + lowest.y)/2})
+      if count % (docWidth /  (docWidth * @transectionSettings.resolutionPermille / 1000)) == 0
+        set.push {x: uppest.x, y: (uppest.y + lowest.y)/2}
 
       curPoint = lowest
       count++
 
     return set
 
-  analyse: (origin) ->
+  analyse: (origin) =>
     # Find graph near the specified point
-    anyPointOfGraph = findGraphInProximity(origin)
+    anyPointOfGraph = @findGraphInProximity origin
 
     # Has a point beend found? no?
-    if anyPointOfGraph == Coordinate::invalid()
-      return undefined
+    return undefined if anyPointOfGraph is Coordinate::invalid()
 
     # Get the graph color for further analysis
-    @graphColor = @parendDocument.getPixel(anyPointOfGraph.x, anyPointOfGraph.y)
+    @graphColor = @parentDocument.getPixel anyPointOfGraph
 
     # Find the beginning of the graph
-    startingPoint = findLeftMostBottomPoint(anyPointOfGraph)
+    startingPoint = @findLeftMostBottomPoint anyPointOfGraph
 
     # Finally get an array of points that represent the graph
-    set = transsectGraph(startingPoint)
-
-    return set
-
+    return @transsectGraph startingPoint
 
 
