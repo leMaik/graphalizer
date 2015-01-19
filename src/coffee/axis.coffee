@@ -2,7 +2,7 @@
 class Axis extends Observable
   constructor: ->
     super()
-    @name = observable('')
+    @name = observable('').subscribe => @notifyObservers(yes)
     @minVal = observable(0).subscribe(@resetMarks)
     @maxVal = observable(100).subscribe(@resetMarks)
     @interval = observable(10).subscribe(@resetMarks)

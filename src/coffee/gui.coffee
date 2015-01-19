@@ -99,6 +99,7 @@ $ ->
     })
 
   POINTS.subscribe GUI.updateAllValues
+  AXES.subscribe GUI.updateAllValues
 
   $('#exportCSV').on 'mousedown', ->
     csv = ''
