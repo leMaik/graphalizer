@@ -99,12 +99,10 @@ class GraphAnalyser
     if origin.x is (@parentDocument.getWidth() - 1)
       return origin
 
-    max = @findUpMost(origin)
-    y = origin.y
-    while y >= max.y
-      return {x: origin.x + 1, y: y} if @isWithinGraph({x: origin.x + 1, y: y})
-      y--
-    return origin
+    for i in [0..10]
+      return {x: origin.x + 1, y: origin.y + i} if @isWithinGraph({x: origin.x + 1, y: origin.y + i})
+      return {x: origin.x + 1, y: origin.y - i} if @isWithinGraph({x: origin.x + 1, y: origin.y - i})
+    return undefined
 
   # Separates the graph into several points
   transectGraph: (origin) =>
@@ -116,14 +114,16 @@ class GraphAnalyser
 
     while true
       nextPoint = @findNextRight(curPoint)
+      break if nextPoint is undefined
+
       console.log 'transectGraph: %d/%d', nextPoint.x, nextPoint.y
       break if (nextPoint.x is curPoint.x and nextPoint.y is curPoint.y)
 
       mostUp = @findUpMost(nextPoint)
       lowest = @findLowest(nextPoint)
 
-      # if count % (docWidth /  (docWidth * @transectionSettings.resolutionPermille / 1000)) == 0
-      set.push {x: mostUp.x, y: (mostUp.y + lowest.y)/2}
+      if count % (docWidth /  (docWidth * @transectionSettings.resolutionPermille / 1000)) == 0
+        set.push {x: mostUp.x, y: (mostUp.y + lowest.y)/2}
 
       curPoint = lowest
       count++
