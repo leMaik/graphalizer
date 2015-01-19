@@ -1,3 +1,0 @@
-class PixelSet
-  constructor: () ->
-    @points = []

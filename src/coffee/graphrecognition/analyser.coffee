@@ -67,21 +67,36 @@ class GraphAnalyser
   # under the passed position (origin). It uses the member variable 'graphColor'
   # to differentiate between graph and no graph
   findLeftMostBottomPoint: (origin) =>
+    seekToLeftBottom = () =>
+      if @isWithinGraph(origin.x - 1, origin.y + 1) # 1
+        origin.x--
+        origin.y++
+      else if @isWithinGraph(origin.x - 1, origin.y    ) # 2
+        origin.x--
+      else if @isWithinGraph(origin.x - 1, origin.y - 1) # 3
+        origin.x--
+        origin.y--
+      else if @isWithinGraph(origin.x    , origin.y + 1) # 4
+        origin.y++
+      else
+        return false
+      return true
+
     while origin.x > 0 and origin.y < @parentDocument.getHeight() and origin.y > 0
-      nextPoint = @seekToLeftBottom(origin)
-      invalidPosition = Coordinate::isInvalid nextPoint
-      if invalidPosition && @isWithinGraph({x: origin.x, y: origin.y - 1})
+      if seekToLeftBottom(origin)
+      else if @isWithinGraph({x: origin.x, y: origin.y - 1})
+        # this is the last resort. There are still pixels above, so seek up
         origin.y = @findUpMost(origin).y
         previousX = origin.x
-        origin = @seekToLeftBottom(origin)
+        seekToLeftBottom(origin)
         break if previousX is origin.x
-      else if invalidPosition
+      else
         break
-      origin = nextPoint
+      # console.log 'findLeftMostBottom: %d,%d', origin.x, origin.y
     return @findLowest(origin)
 
   findNextRight: (origin) =>
-    if (origin.x == @parentDocument.getWidth() - 1)
+    if origin.x is (@parentDocument.getWidth() - 1)
       return origin
 
     max = @findUpMost(origin)
@@ -91,9 +106,8 @@ class GraphAnalyser
       y--
     return origin
 
-  # Seperates the graph into several points
-  transsectGraph: (origin) =>
-    console.log 'origion: %d,%d', origin.x, origin.y
+  # Separates the graph into several points
+  transectGraph: (origin) =>
     set = []
     curPoint = origin
     count = 0
@@ -102,14 +116,14 @@ class GraphAnalyser
 
     while true
       nextPoint = @findNextRight(curPoint)
-      console.log 'nextPoint = %d/%d', nextPoint.x, nextPoint.y
+      console.log 'transectGraph: %d/%d', nextPoint.x, nextPoint.y
       break if (nextPoint.x is curPoint.x and nextPoint.y is curPoint.y)
 
-      uppest = @findUpMost(nextPoint)
+      mostUp = @findUpMost(nextPoint)
       lowest = @findLowest(nextPoint)
 
-      if count % (docWidth /  (docWidth * @transectionSettings.resolutionPermille / 1000)) == 0
-        set.push {x: uppest.x, y: (uppest.y + lowest.y)/2}
+      # if count % (docWidth /  (docWidth * @transectionSettings.resolutionPermille / 1000)) == 0
+      set.push {x: mostUp.x, y: (mostUp.y + lowest.y)/2}
 
       curPoint = lowest
       count++
@@ -130,6 +144,6 @@ class GraphAnalyser
     startingPoint = @findLeftMostBottomPoint anyPointOfGraph
 
     # Finally get an array of points that represent the graph
-    return @transsectGraph startingPoint
+    return @transectGraph startingPoint
 
 
