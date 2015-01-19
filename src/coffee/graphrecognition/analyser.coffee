@@ -9,7 +9,7 @@ class GraphAnalyser
                 @transectionSettings = TransectionSettings::default()) ->
     @graphColor = [0, 0, 0]
 
-  findGraphInProximity: (origin) =>
+  findGraphInProximity: (origin, maxRadius = 100) =>
     bgColor = @environmentSettings.backgroundColor;
 
     # Was the guess already on the graph? Return if so
@@ -29,6 +29,8 @@ class GraphAnalyser
 
       # The graph has yet not been found -> increase search radius
       searchRadius++
+      if (searchRadius > maxRadius)
+        return Coordinate::invalid()
 
     # The algorithm could not find the graph -> return an invalid position
     return Coordinate::invalid()

@@ -17,6 +17,6 @@ class EnvironmentSettings
 
 # The default resolution is still plenty of values
 class TransectionSettings
-  constructor: (@resolutionPermille = 40) ->
+  constructor: (@resolutionPermille = 32) ->
 
   default: -> new TransectionSettings()
