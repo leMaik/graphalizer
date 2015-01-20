@@ -125,14 +125,19 @@ class HorizontalAxis extends Axis
       Layers.AXES.draw()
 
   getLine: =>
-    @line = new Kinetic.Line
-      points: [0, 0, 1, 0]
-      stroke: 'red'
-      strokeWidth: 2
+    @line = new Kinetic.Rect
+      fill: 'red'
+      width: 1
+      height: 2
       draggable: yes
       scaleX: STAGE.width() - 100
       x: 50
       y: 50
+      hitFunc: (context) ->
+        context.beginPath()
+        context.rect(0, -10, 1, 20)
+        context.closePath()
+        context.fillStrokeShape(@)
     .on 'dragmove', =>
         @position({x: @line.x(), y: @line.y()})
         @notifyObservers(yes)
@@ -238,14 +243,19 @@ class VerticalAxis extends Axis
       Layers.AXES.draw()
 
   getLine: =>
-    @line = new Kinetic.Line
-      points: [0, 0, 0, 1]
-      scaleY: STAGE.height() - 100
-      stroke: 'red'
-      strokeWidth: 2
+    @line = new Kinetic.Rect
+      fill: 'red'
+      width: 2
+      height: 1
       draggable: yes
+      scaleY: STAGE.height() - 100
       x: 50
       y: 50
+      hitFunc: (context) ->
+        context.beginPath()
+        context.rect(-10, 0, 20, 1)
+        context.closePath()
+        context.fillStrokeShape(@)
     .on 'dragmove', =>
         @position({x: @line.x(), y: @line.y()})
         @notifyObservers(yes)
