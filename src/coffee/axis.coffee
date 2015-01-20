@@ -21,10 +21,27 @@ class Axis extends Observable
     @isEditing.subscribe (v) =>
       if v
         deselectAllExcept(@)
+        @line.shadowBlur(15)
+      else
+        @line.shadowBlur(0)
+      Layers.AXES.draw()
       GUI.selectedAxis(if v then @ else null)
     Layers.AXES.add @axis = new Kinetic.Group
 
-    @axis.add(@line = @getLine()).draw()
+    @line = @getLine()
+    .shadowColor('black')
+    .shadowBlur(0)
+    .shadowOpacity(1)
+    .on 'mouseover', =>
+      if !@isEditing()
+        @line.shadowBlur(5)
+        Layers.AXES.draw()
+    .on 'mouseout', =>
+      if !@isEditing()
+        @line.shadowBlur(0)
+        Layers.AXES.draw()
+
+    @axis.add(@line).draw()
 
   getMarks: =>
     if @type() is "logarithmic"
