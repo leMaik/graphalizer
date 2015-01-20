@@ -16,7 +16,7 @@ class EnvironmentSettings
   default: -> new EnvironmentSettings()
 
 # The default resolution is still plenty of values
-class TransectionSettings
-  constructor: (@resolutionPermille = 32) ->
+class ReductionSettings
+  constructor: (@resolutionPermille = 42, @circularSearchSkip = 1) ->
 
-  default: -> new TransectionSettings()
+  default: -> new ReductionSettings()

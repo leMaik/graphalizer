@@ -6,34 +6,88 @@
 class GraphAnalyser
   constructor: (@parentDocument, @toleranceSettings = ToleranceSettings::default(),
                 @environmentSettings = EnvironmentSettings::default(),
-                @transectionSettings = TransectionSettings::default()) ->
+                @reductionSettings = ReductionSettings::default()) ->
     @graphColor = [0, 0, 0]
 
-  findGraphInProximity: (origin, maxRadius = 100) =>
+  findGraphInProximity: (origin, maximumRadius = 100) =>
     bgColor = @environmentSettings.backgroundColor;
 
+    isNotBackground = (point) =>
+      return !@toleranceSettings.isTolerated(bgColor, @parentDocument.getPixel(point))
+
     # Was the guess already on the graph? Return if so
-    return origin if !@toleranceSettings.isTolerated(bgColor, @parentDocument.getPixel(origin))
+    return origin if isNotBackground origin
 
-    searchRadius = 0
-    while origin.x - searchRadius > 0 and
-          origin.x + searchRadius < @parentDocument.getWidth() and
-          origin.y - searchRadius > 0 and
-          origin.y + searchRadius < @parentDocument.getHeight()
+    skip = @reductionSettings.circularSearchSkip;
+    if skip <= 0
+      skip = 1
 
-      # Traverse all possible surrounding pixels in  the radius
-      for i in [-1*searchRadius..searchRadius+1]
-        for j in [-1*searchRadius..searchRadius+1]
-          if !@toleranceSettings.isTolerated(bgColor, @parentDocument.getPixel(origin.x + i, origin.y + j))
-            return new Coordinate(origin.x + i, origin.y + j)
+    radius = 0
+    dOuter = 0
+    dInner = 0
+    circleRadius = 0
 
-      # The graph has yet not been found -> increase search radius
-      searchRadius++
-      if (searchRadius > maxRadius)
-        return Coordinate::invalid()
+    loopUpdate = () =>
+      circleRadius = 1 + 2 * skip * radius
+      dInner = radius * skip
+      dOuter = 1 + (skip + 1) * radius
+      return true
 
-    # The algorithm could not find the graph -> return an invalid position
+    while loopUpdate() and
+          origin.x + dOuter < @parentDocument.getWidth() and
+          origin.y + dOuter < @parentDocument.getHeight() and
+          origin.x - dOuter > 0 and
+          origin.y - dOuter > 0
+      break if (radius >= maximumRadius)
+
+      # Sides:
+      startPointA = {x: origin.x - dOuter, y: origin.y - dInner} # move positive y
+      startPointB = {x: origin.x - dInner, y: origin.y - dOuter} # move positive x
+      startPointC = {x: origin.x + dOuter, y: origin.y + dInner} # move negative y
+      startPointD = {x: origin.x + dInner, y: origin.y + dOuter} # move negative x
+
+      for i in [0..circleRadius]
+        return startPointA if isNotBackground startPointA
+        return startPointB if isNotBackground startPointB
+        return startPointC if isNotBackground startPointC
+        return startPointD if isNotBackground startPointD
+
+        startPointA.y++
+        startPointB.x++
+        startPointC.y--
+        startPointD.x--
+
+      # Now Corners:
+      An = 1 + skip * radius
+      Bn = (1 + skip) * radius
+
+      RT = {x: An  + origin.x, y: -Bn + origin.y}
+      LT = {x: -Bn + origin.x, y: -An + origin.y}
+      LB = {x: -An + origin.x, y: Bn  + origin.y}
+      RB = {x: Bn  + origin.x, y: An  + origin.y}
+
+      for i in [0..radius]
+        return RT if isNotBackground RT
+        return LT if isNotBackground LT
+        return RB if isNotBackground RB
+        return LT if isNotBackground LT
+
+        RT.x++
+        RT.y++
+
+        LB.x--
+        LB.y--
+
+        RB.x--
+        RB.y++
+
+        LT.x++
+        LT.x--
+
+      radius++
+
     return Coordinate::invalid()
+
 
   # Checks wether the pixel under 'origin' has roughly the graphColor
   isWithinGraph: =>
@@ -94,7 +148,7 @@ class GraphAnalyser
         break if previousX is origin.x
       else
         break
-      # console.log 'findLeftMostBottom: %d,%d', origin.x, origin.y
+      console.log 'findLeftMostBottom: %d,%d', origin.x, origin.y
     return @findLowest(origin)
 
   findNextRight: (origin) =>
@@ -124,7 +178,7 @@ class GraphAnalyser
       mostUp = @findUpMost(nextPoint)
       lowest = @findLowest(nextPoint)
 
-      if count % (docWidth /  (docWidth * @transectionSettings.resolutionPermille / 1000)) == 0
+      if count % (docWidth /  (docWidth * @reductionSettings.resolutionPermille / 1000)) == 0
         set.push {x: mostUp.x, y: (mostUp.y + lowest.y)/2}
 
       curPoint = lowest
@@ -135,6 +189,8 @@ class GraphAnalyser
   analyse: (origin) =>
     # Find graph near the specified point
     anyPointOfGraph = @findGraphInProximity origin
+
+    console.log anyPointOfGraph
 
     # Has a point beend found? no?
     return undefined if anyPointOfGraph is Coordinate::invalid()
