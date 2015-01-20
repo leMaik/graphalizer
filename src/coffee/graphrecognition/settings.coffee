@@ -17,6 +17,6 @@ class EnvironmentSettings
 
 # The default resolution is still plenty of values
 class ReductionSettings
-  constructor: (@resolutionPermille = 42, @circularSearchSkip = 1) ->
+  constructor: (@resolutionPermille = 50, @circularSearchSkip = 1) ->
 
   default: -> new ReductionSettings()

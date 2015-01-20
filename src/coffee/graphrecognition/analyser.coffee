@@ -190,8 +190,6 @@ class GraphAnalyser
     # Find graph near the specified point
     anyPointOfGraph = @findGraphInProximity origin
 
-    console.log anyPointOfGraph
-
     # Has a point beend found? no?
     return undefined if anyPointOfGraph is Coordinate::invalid()
 
