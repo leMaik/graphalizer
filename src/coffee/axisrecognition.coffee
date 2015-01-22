@@ -6,28 +6,33 @@ class AxisRecognition
                    environmentSettings = EnvironmentSettings::default()) ->
     numAngleCells = 360
 
-    rhoMax = Math.sqrt(Math.pow(img.height, 2) + Math.pow(img.width, 2))
-    min_d = -max_d
+    rhoMax = Math.sqrt(Math.pow(img.getHeight(), 2) + Math.pow(img.getWidth(), 2))
     accum = Array(numAngleCells)
     bgColor = environmentSettings.backgroundColor
 
-    for x in [0..img.width - 1]
-      for y in [0..img.height - 1]
-        if !toleranceSettings.isTolerated(bgColor, @parentDocument.getPixel(x, y))
+    xmax = img.getWidth() - 1
+    ymax = img.getHeight() - 1
+    for x in [0..xmax]
+      for y in [0..ymax]
+        if !toleranceSettings.isTolerated(bgColor, img.getPixel(x, y))
           theta = 0;
           thetaIndex = 0;
-          x_ = x - img.width / 2
-          y_ = y - img.height / 2
+          x_ = x - img.getWidth() / 2
+          y_ = y - img.getHeight() / 2
 
           while thetaIndex < numAngleCells
-            rho = rhoMax + x_ * Math.cos(theta) + y_ * Math.sin(theta);
-            rho >>= 1;
-            if !accum[thetaIndex]?
+            rho = Math.floor Math.sqrt(x_ * x_ + y_ * y_)
+            #console.log 'distance to center: ' + rho
+            #rho = rhoMax / 2 + x_ * Math.cos(theta) + y_ * Math.sin(theta);
+            #console.log rho
+            if typeof accum[thetaIndex] is 'undefined'
               accum[thetaIndex] = []
-            if accum[thetaIndex][rho]?
-              accum[thetaIndex][rho]++
-            else
+            if typeof accum[thetaIndex][rho] is 'undefined'
+              console.log 'new'
               accum[thetaIndex][rho] = 1
+            else
+              console.log 'inc'
+              accum[thetaIndex][rho]+=10
 
             theta += Math.PI / numAngleCells
             thetaIndex++
@@ -35,3 +40,22 @@ class AxisRecognition
   #HSctx.beginPath();
   #HSctx.fillRect(thetaIndex, rho, 1, 1);
   #HSctx.closePath();
+
+    oc = $('<canvas/>').get(0);
+    oc.width = numAngleCells
+    oc.height = rhoMax + 1
+    console.log 'oc size: %d*%d', oc.width, oc.height
+    ctx = oc.getContext('2d')
+    ctx.fillStyle = 'rgba(0,0,0,0.1)'
+    for theta,thetaIndex in accum
+      for v,rho in theta
+        ctx.beginPath()
+        ctx.fillRect(thetaIndex, rho, 1, 1)
+        ctx.closePath()
+        #console.log '%d, %d', thetaIndex, rho
+    data = oc.toDataURL()
+    #window.location.href = data
+    houghRoom = new Image()
+    houghRoom.onload = =>
+      IMAGES.push new ScalableImage(houghRoom)
+    houghRoom.src = data
