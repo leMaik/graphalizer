@@ -16,7 +16,7 @@ class ScalableImage
       shadowOpacity: 0.5
 
     @img.on 'click', =>
-      new AxisRecognition().houghTransform(new ImageWrapper(@img.image()))
+      new AxisRecognition(new ImageWrapper(@img.image())).houghTransform()
       if GUI.mode() is 'analyze'
         mousePos = STAGE.getPointerPosition()
 
