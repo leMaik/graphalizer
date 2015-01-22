@@ -46,6 +46,12 @@ class ScalableImage
           point = new AnalyzeValue(absolutePos.x, absolutePos.y)
           Layers.POINTS.add point.kineticElement
           Layers.POINTS.draw()
+          point.subscribe (v) ->
+            if v.isRemoved?
+              console.log 'point removed'
+              POINTS.remove v
+              v.kineticElement.remove()
+              Layers.POINTS.draw()
           POINTS.push point
 
         #absoluteFixedPos = transformBack fixedClickPos
