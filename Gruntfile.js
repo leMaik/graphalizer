@@ -104,7 +104,7 @@ module.exports = function (grunt) {
                 },
                 dot: {
                     files: 'src/templates/**/*.doT',
-                    tasks: ['dot', 'bell']
+                    tasks: ['dot', 'uglify:debug', 'bell']
                 },
                 anything: {
                     files: ['src/**/*', '!**/*.less', '!**/*.coffee', '!**/*.doT'],
