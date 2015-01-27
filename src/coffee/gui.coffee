@@ -66,9 +66,6 @@ $ ->
     newAxis.name 'Achse ' + (AXES().length + 1)
     AXES.push newAxis
 
-  $('#deleteAxis').on 'click', ->
-    GUI.selectedAxis().remove()
-
   GUI.selectedAxis.subscribe (v, old) ->
     if old isnt null
       old.minVal.unbind($('#minimum'))
@@ -77,14 +74,17 @@ $ ->
       old.name.unbind($('#name'))
 
     if v isnt null
-      GUI.selectedAxis().minVal.bind($('#minimum'), (v) ->
-        parseFloat(v))
-      GUI.selectedAxis().maxVal.bind($('#maximum'), (v) ->
-        parseFloat(v))
-      GUI.selectedAxis().type.bind($('#type'))
-      GUI.selectedAxis().name.bind($('#name'))
+      tpl = new TemplateWrapper $('#editAxis .ctn').html(GUI.template('axisEdit'))
 
-      $('#interval').val(v.interval())
+      GUI.selectedAxis().minVal.bind tpl.get('minimum'), (v) -> parseFloat(v)
+      GUI.selectedAxis().maxVal.bind tpl.get('maximum'), (v) -> parseFloat(v)
+      GUI.selectedAxis().type.bind tpl.get('type')
+      GUI.selectedAxis().name.bind tpl.get('name')
+      GUI.selectedAxis().interval.bind tpl.get('interval'), (v) -> parseFloat(v)
+      #tpl.get('interval').val(v.interval())
+
+      tpl.get('deleteAxis').on 'click', ->
+        GUI.selectedAxis().remove()
 
       showGroup $('#editAxis')
       console.log 'axis selected'
