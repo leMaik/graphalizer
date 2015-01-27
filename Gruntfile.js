@@ -100,7 +100,7 @@ module.exports = function (grunt) {
                 },
                 coffee: {
                     files: 'src/coffee/**/*.coffee',
-                    tasks: ['coffee:debug', 'bell']
+                    tasks: ['coffee:debug', 'dot', 'uglify:debug', 'bell']
                 },
                 dot: {
                     files: 'src/templates/**/*.doT',
