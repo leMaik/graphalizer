@@ -13,6 +13,8 @@
     <option value="linear">Linear</option>
     <option value="logarithmic">Logarithmisch</option>
 </select>
+
+<label>Typ</label>
 <select data-id="axisMode">
     <option value="default">Standard</option>
     <option value="x2">x2</option>
