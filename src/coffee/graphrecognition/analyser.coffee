@@ -111,13 +111,13 @@ class GraphAnalyser
   findUpMost: (origin) =>
     while origin.y > 0 and @isWithinGraph({x: origin.x, y: origin.y-1})
       origin.y--
-    return origin
+    return {x: origin.x, y: origin.y}
 
   findLowest: (origin) =>
     documentHeight = @parentDocument.getHeight()
     while origin.y < documentHeight and @isWithinGraph({x: origin.x, y: origin.y+1})
       origin.y++
-    return origin
+    return {x: origin.x, y: origin.y}
 
   # This function seeks the leftest and most bottom point of the graph
   # under the passed position (origin). It uses the member variable 'graphColor'
@@ -148,7 +148,6 @@ class GraphAnalyser
         break if previousX is origin.x
       else
         break
-      console.log 'findLeftMostBottom: %d,%d', origin.x, origin.y
     return @findLowest(origin)
 
   findNextRight: (origin) =>
@@ -177,6 +176,7 @@ class GraphAnalyser
 
       mostUp = @findUpMost(nextPoint)
       lowest = @findLowest(nextPoint)
+      lowest.y--
 
       if count % (docWidth /  (docWidth * @reductionSettings.resolutionPermille / 1000)) == 0
         set.push {x: mostUp.x, y: (mostUp.y + lowest.y)/2}
@@ -189,6 +189,8 @@ class GraphAnalyser
   analyse: (origin) =>
     # Find graph near the specified point
     anyPointOfGraph = @findGraphInProximity origin
+
+    console.log anyPointOfGraph
 
     # Has a point beend found? no?
     return undefined if anyPointOfGraph is Coordinate::invalid()
