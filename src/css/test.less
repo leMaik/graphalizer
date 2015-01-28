@@ -1,8 +1,8 @@
-@dark: #303850;
-@highlight1: #ff4648;
-@highlight2: #66cded;
-@silver: #ddd;
+@dark: #6991ac;
+@silver: #f5f5f5;
+@red: #d75c37;
 @light: #fff;
+@gray: #67727a;
 
 * {
   padding: 0;
@@ -48,7 +48,7 @@ h1, h2 {
     padding: 0 20px;
     font-size: 1.5em;
     color: white;
-    text-shadow: -1px -1px 0 #333;
+    text-shadow: -1px -1px 0 darken(@dark, 20%);
     float: left;
     border-right: 1px solid lighten(@dark, 10%);
   }
@@ -97,16 +97,16 @@ h1, h2 {
   position: fixed;
   top: 50px;
   right: 0;
-  box-shadow: 0 0 20px @dark;
+  box-shadow: 0 0 5px @gray;
   padding: 20px;
   background: @silver;
 
   .group {
     border-radius: 5px;
+    border: 1px solid @dark;
     margin: 0 0 10px;
     clear: both;
     background: white;
-    box-shadow: 0 0 3px @dark;
     padding: 10px 10px 0;
 
     &.notmanual {
@@ -127,7 +127,7 @@ h1, h2 {
     background: @dark;
     border-radius: 5px;
     font-size: 1.1em;
-    margin: -10px  -10px 0;
+    margin: -11px  -11px 0;
     cursor: pointer;
     display: block;
     line-height: 30px;
@@ -139,8 +139,9 @@ h1, h2 {
   }
 
   button, input, a.button, select {
-    background: lighten(@silver, 20%);
+    background: @silver;
     border: 1px solid darken(@silver, 20%);
+    box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.3) inset;
     border-radius: 3px;
     padding: 5px;
     outline: 0;
@@ -149,11 +150,17 @@ h1, h2 {
     font-size: 0.9em;
 
     &:hover {
-      border: 1px solid darken(@silver, 10%);
+      border: 1px solid darken(@silver, 30%);
+      background: darken(@silver, 5%);
     }
 
     &:active {
       border: 1px solid darken(@silver, 25%);
+    }
+
+    &.destructive {
+      color: @red;
+      border-color: @red;
     }
   }
 
@@ -164,7 +171,8 @@ h1, h2 {
     line-height: 18px;
 
     &:active {
-      transform: scale(0.99);
+      margin-top: 1px;
+      margin-bottom: 9px;
     }
 
     &.w50 {
@@ -197,6 +205,14 @@ h1, h2 {
     text-decoration: none;
     display: block;
     text-align: center;
+
+    &.h25 {
+      line-height: 23px;
+    }
+
+    &.h50 {
+      line-height: 48px;
+    }
   }
 
   label {

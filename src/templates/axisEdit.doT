@@ -21,4 +21,4 @@
     <option value="x10">x10</option>
 </select>
 
-<button class="h25 w100" data-id="deleteAxis">Achse löschen</button>
+<button class="h25 w100 destructive" data-id="deleteAxis">Achse löschen</button>
