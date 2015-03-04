@@ -16,7 +16,7 @@ class ScalableImage
       shadowOpacity: 0.5
 
     @img.on 'click', =>
-      new AxisRecognition(new ImageWrapper(@img.image())).houghTransform()
+      #new AxisRecognition(new ImageWrapper(@img.image())).houghTransform()
       if GUI.mode() is 'analyze'
         mousePos = STAGE.getPointerPosition()
 
@@ -44,22 +44,13 @@ class ScalableImage
         for rawPoint in new GraphAnalyser(document).analyse(fixedClickPos)
           console.log rawPoint
           absolutePos = transformBack rawPoint
-          point = new AnalyzeValue(absolutePos.x, absolutePos.y)
-          Layers.POINTS.add point.kineticElement
-          Layers.POINTS.draw()
-          point.subscribe (v) ->
-            if v.isRemoved?
-              console.log 'point removed'
-              POINTS.remove v
-              v.kineticElement.remove()
-              Layers.POINTS.draw()
-          POINTS.push point
+          POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
 
-        #absoluteFixedPos = transformBack fixedClickPos
-        #point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
-        #Layers.POINTS.add point.kineticElement
-        #Layers.POINTS.draw()
-        #POINTS.push point
+        absoluteFixedPos = transformBack fixedClickPos
+        point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
+        Layers.POINTS.add point.kineticElement
+        Layers.POINTS.draw()
+        POINTS.push point
 
         pixel = document.getPixel(relative.x, relative.y)
         hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
@@ -76,7 +67,8 @@ class ScalableImage
     @rotate = null
     @removeBtn = null
 
-    @isEditing = observable(no).subscribe (v) =>
+    @isEditing = ko.observable(no)
+    @isEditing.subscribe (v) =>
       console.log 'isEditing: ' + v
       if v
         deselectAllExcept(@)

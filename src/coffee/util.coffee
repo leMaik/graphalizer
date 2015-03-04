@@ -18,3 +18,13 @@ class Util
     return { width: newWidth, height: newHeight }
 
   log10: (x) -> Math.log(x) / Math.log(10) #Math.log is to base e
+
+# a ko.observable that will automatically convert values to float
+ko.numericObservable = (v) ->
+  value = ko.observable(v)
+  return ko.dependentObservable
+    read: -> value()
+    write: (v) ->
+      parsedValue = parseFloat(v);
+      if !isNaN(parsedValue)
+        value parsedValue

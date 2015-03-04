@@ -1,23 +1,32 @@
 #Code for axes
-class Axis extends Observable
+class Axis
   constructor: ->
-    super()
-    @name = observable('').subscribe => @notifyObservers(yes)
-    @minVal = observable(0).subscribe(@resetMarks)
-    @maxVal = observable(100).subscribe(@resetMarks)
-    @interval = observable(10).subscribe(@resetMarks)
-    @type = observable("linear").subscribe (v) =>
+    @name = ko.observable('')
+    @minVal = ko.numericObservable(0)
+    @minVal.subscribe(@resetMarks)
+    @maxVal = ko.numericObservable(100)
+    @maxVal.subscribe(@resetMarks)
+    @interval = ko.numericObservable(10)
+    @interval.subscribe(@resetMarks)
+    @type = ko.observable("linear")
+    @type.subscribe (v) =>
       if v is "logarithmic" and @minVal() is 0
         @minVal(0.1)
       @resetMarks()
-    @axisMode = observable('').subscribe (v) =>
+    @axisMode = ko.observable('')
+    @axisMode.subscribe (v) =>
       @resetMarks()
 
+    @lineSize = ko.observable()
+    @lineX = ko.observable(50)
+    @lineY = ko.observable(50)
+    @lineSize.subscribe => @resetMarks()
+    @lineX.subscribe => @resetMarks()
+    @lineY.subscribe => @resetMarks()
+
     @marks = []
-    @position = observable()
-    @subscribe GUI.updateAllValues
     @controls = {}
-    @isEditing = observable(no)
+    @isEditing = ko.observable(no)
     @isEditing.subscribe (v) =>
       if v
         deselectAllExcept(@)
@@ -104,12 +113,6 @@ class Axis extends Observable
 class HorizontalAxis extends Axis
   constructor: ->
     super()
-    @position.subscribe (v) =>
-      @controls.minCirc?.y(v.y + 40).x(v.x)
-      @controls.maxCirc?.y(v.y + 40).x(v.x + @line.scaleX())
-      @resetMarks()
-      Layers.AXES.draw()
-    @position({x: 50, y: 50})
 
     @isEditing.subscribe (v) =>
       if v
@@ -120,11 +123,12 @@ class HorizontalAxis extends Axis
           y: @line.y() + 40
           tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
-            @line.scaleX(@line.scaleX() - @controls.minCirc.x() + @line.x())
-            @line.x(@controls.minCirc.x())
-            @controls.minCirc.y(@line.y() + 40)
-            @resetMarks()
-            @notifyObservers(yes)
+          @line.scaleX(@line.scaleX() - @controls.minCirc.x() + @line.x())
+          @line.x(@controls.minCirc.x())
+          @controls.minCirc.y(@line.y() + 40)
+          @lineSize @line.scaleX()
+          @lineX @line.x()
+          @resetMarks()
         @controls.maxCirc = ImageCircle
           size: 20
           image: 'res/right.svg'
@@ -132,10 +136,10 @@ class HorizontalAxis extends Axis
           y: @line.y() + 40
           tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
-            @line.scaleX(@controls.maxCirc.x() - @line.x())
-            @controls.maxCirc.y(@line.y() + 40)
-            @resetMarks()
-            @notifyObservers(yes)
+          @line.scaleX(@controls.maxCirc.x() - @line.x())
+          @controls.maxCirc.y(@line.y() + 40)
+          @lineSize @line.scaleX()
+          @resetMarks()
         Layers.AXES.add(@controls[c]) for c of @controls
       else
         @controls[c].remove() for c of @controls
@@ -156,23 +160,20 @@ class HorizontalAxis extends Axis
         context.closePath()
         context.fillStrokeShape(@)
     .on 'dragmove', =>
-        @position({x: @line.x(), y: @line.y()})
-        @notifyObservers(yes)
+      @lineX @line.x()
+      @lineY @line.y()
+      if @isEditing()
+        @controls.minCirc.x(@lineX()).y(@lineY() + 40)
+        @controls.maxCirc.x(@lineX() + @lineSize()).y(@lineY() + 40)
     .on 'mouseenter', ->
-        $('body').css('cursor', 'move')
+      $('body').css('cursor', 'move')
     .on 'mouseleave', =>
-        $('body').css('cursor', '')
+      $('body').css('cursor', '')
     .on 'click', =>
-        @isEditing(!@isEditing())
+      @isEditing(!@isEditing())
 
-    @createMarks()
-
+    @lineSize STAGE.width() - 100
     return @line
-
-  lineSize: =>
-    @line.scaleX()
-  lineOffset: =>
-    @line.x()
 
   createMarks: =>
     for mark in @getMarks()
@@ -198,18 +199,18 @@ class HorizontalAxis extends Axis
   #source: http://www.ibrtses.com/delphi/dmcs.html
   transformToValue: (x) =>
     if @type() is "linear"
-      return (@maxVal() - @minVal()) / @line.scaleX() * (x - @line.x()) + @minVal()
+      return (@maxVal() - @minVal()) / @lineSize() * (x - @lineX()) + @minVal()
     else if @type() is "logarithmic"
-      return @minVal() * Math.exp(((x - @line.x()) / @line.scaleX()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
+      return @minVal() * Math.exp(((x - @lineX()) / @lineSize()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
     else
       console.error "Unknown axis type"
 
   transform: (x) =>
     if @type() is "linear"
       console.log "linear"
-      return @line.x() + (@line.scaleX() / (@maxVal() - @minVal())) * (x - @minVal())
+      return @lineX() + (@lineSize() / (@maxVal() - @minVal())) * (x - @minVal())
     else if @type() is "logarithmic"
-      return @line.x() + Math.round(Math.log(x / @minVal()) / Math.log(@maxVal() / @minVal()) * @line.scaleX())
+      return @lineX() + Math.round(Math.log(x / @minVal()) / Math.log(@maxVal() / @minVal()) * @lineSize())
     else
       console.error "Unknown axis type"
 
@@ -222,12 +223,6 @@ class HorizontalAxis extends Axis
 class VerticalAxis extends Axis
   constructor: ->
     super()
-    @position.subscribe (v) =>
-      @controls.minCirc?.x(v.x - 40).y(v.y + @line.scaleY())
-      @controls.maxCirc?.x(v.x - 40).y(v.y)
-      @resetMarks()
-      Layers.AXES.draw()
-    @position({x: 50, y: 50})
 
     @isEditing.subscribe (v) =>
       if v
@@ -238,11 +233,12 @@ class VerticalAxis extends Axis
           y: @line.y()
           tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
-            @line.scaleY(@line.scaleY() - @controls.maxCirc.y() + @line.y())
-            @line.y(@controls.maxCirc.y())
-            @controls.maxCirc.x(@line.x() - 40)
-            @resetMarks()
-            @notifyObservers(yes)
+          @line.scaleY(@line.scaleY() - @controls.maxCirc.y() + @line.y())
+          @line.y(@controls.maxCirc.y())
+          @controls.maxCirc.x(@line.x() - 40)
+          @lineSize @line.scaleY()
+          @lineY @line.y()
+          @resetMarks()
         @controls.minCirc = ImageCircle
           size: 20
           image: 'res/down.svg'
@@ -250,10 +246,10 @@ class VerticalAxis extends Axis
           y: @line.y() + @line.scaleY()
           tooltip: 'Ziehen zum verschieben'
         .on 'dragmove', =>
-            @line.scaleY(@controls.minCirc.y() - @line.y())
-            @controls.minCirc.x(@line.x() - 40)
-            @resetMarks()
-            @notifyObservers(yes)
+          @line.scaleY(@controls.minCirc.y() - @line.y())
+          @controls.minCirc.x(@line.x() - 40)
+          @lineSize @line.scaleY()
+          @resetMarks()
         Layers.AXES.add(@controls[c]) for c of @controls
       else
         @controls[c].remove() for c of @controls
@@ -274,23 +270,20 @@ class VerticalAxis extends Axis
         context.closePath()
         context.fillStrokeShape(@)
     .on 'dragmove', =>
-        @position({x: @line.x(), y: @line.y()})
-        @notifyObservers(yes)
+      @lineX @line.x()
+      @lineY @line.y()
+      if @isEditing()
+        @controls.maxCirc.x(@lineX() - 40).y(@lineY())
+        @controls.minCirc.x(@lineX() - 40).y(@lineY() + @lineSize())
     .on 'mouseenter', ->
-        $('body').css('cursor', 'move')
+      $('body').css('cursor', 'move')
     .on 'mouseleave', =>
-        $('body').css('cursor', '')
+      $('body').css('cursor', '')
     .on 'click', =>
-        @isEditing(!@isEditing())
+      @isEditing(!@isEditing())
 
-    @createMarks()
-
+    @lineSize STAGE.height() - 100
     return @line
-
-  lineSize: =>
-    @line.scaleY()
-  lineOffset: =>
-    @line.y()
 
   createMarks: =>
     for mark in @getMarks()
@@ -316,17 +309,17 @@ class VerticalAxis extends Axis
   #source: http://www.ibrtses.com/delphi/dmcs.html
   transformToValue: (y) =>
     if @type() is "linear"
-      return (@maxVal() - @minVal()) / @line.scaleY() * (@line.scaleY() - y + @line.y()) + @minVal()
+      return (@maxVal() - @minVal()) / @lineSize() * (@lineSize() - y + @lineY()) + @minVal()
     else if @type() is "logarithmic"
-      @minVal() * Math.exp(((@line.scaleY() - y + @line.y()) / @line.scaleY()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
+      @minVal() * Math.exp(((@lineSize() - y + @lineY()) / @lineSize()) * Math.log(@maxVal() / @minVal()) / Math.log(Math.E))
     else
       console.error "Unknown axis type"
 
   transform: (y) =>
     if @type() is "linear"
-      return @line.y() + @line.scaleY() - @line.scaleY() / (@maxVal() - @minVal()) * (y - @minVal())
+      return @lineY() + @lineSize() - @lineSize() / (@maxVal() - @minVal()) * (y - @minVal())
     else if @type() is "logarithmic"
-      return @line.y() + @line.scaleY() - Math.round(Math.log(y / @minVal()) / Math.log(@maxVal() / @minVal()) * @line.scaleY())
+      return @lineY() + @lineSize() - Math.round(Math.log(y / @minVal()) / Math.log(@maxVal() / @minVal()) * @lineSize())
     else
       console.error "Unknown axis type"
 

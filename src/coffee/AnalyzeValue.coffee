@@ -1,6 +1,7 @@
-class AnalyzeValue extends Observable
+class AnalyzeValue
   constructor: (x, y) ->
-    super()
+    @x = ko.observable x
+    @y = ko.observable y
 
     @controls = {}
     @controls.deleteBtn = ImageCircle
@@ -12,11 +13,12 @@ class AnalyzeValue extends Observable
     .on 'click', =>
       @controls.deleteBtn.remove()
       Layers.PAPER.draw()
+      @kineticElement.remove()
+      Layers.POINTS.draw()
+      POINTS.remove @
 
-      @isRemoved = yes
-      @notifyObservers(yes)
-
-    @isEditing = observable(no).subscribe (v) =>
+    @isEditing = ko.observable(no)
+    @isEditing.subscribe (v) =>
       if v
         @controls.deleteBtn.x(@kineticElement.x() + 10).y(@kineticElement.y() + 10)
         Layers.PAPER.add(@controls.deleteBtn).draw()
@@ -35,7 +37,8 @@ class AnalyzeValue extends Observable
       y: y
       draggable: yes
     .on 'dragmove', =>
-      @notifyObservers(yes)
+      @x @kineticElement.x()
+      @y @kineticElement.y()
 
       if @isEditing()
         @controls.deleteBtn.x(@kineticElement.x() + 10).y(@kineticElement.y() + 10)
@@ -44,7 +47,6 @@ class AnalyzeValue extends Observable
     .on 'click', =>
       @isEditing !@isEditing()
 
-    @subscribe GUI.updateAllValues
+    Layers.POINTS.add(@kineticElement).draw()
 
-  getValues: =>
-    axis.valueAt(@kineticElement.x(), @kineticElement.y()) for axis in AXES()
+    @values = ko.computed => axis.valueAt(@x(), @y()) for axis in AXES()

@@ -1,8 +1,8 @@
 STAGE = null
 PAPER = null
 IMAGES = []
-AXES = observableArray()
-POINTS = observableArray()
+AXES = ko.observableArray()
+POINTS = ko.observableArray()
 shifted = no
 
 Layers =

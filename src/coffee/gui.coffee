@@ -1,16 +1,45 @@
+class GraphalizerViewModel
+  constructor: ->
+    @axes = AXES
+    @points = POINTS
+    @selectedAxis = ko.observable(null)
+    @isAxisSelected = ko.computed => @selectedAxis isnt null
+
+    @mode = ko.observable('setup')
+    @mode.subscribe (mode) =>
+      if mode is 'analyze'
+        axis.isEditing(no) for axis in @axes()
+        doc.isEditing(no) for doc in IMAGES
+
+  exportCsv: =>
+    csv = ''
+    for axis in @axes()
+      csv += axis.name() + ';'
+    csv += '\n'
+    for point in @points()
+      for v in point.values()
+        csv += v + ';'
+      csv += '\n'
+
+    saveAs(new Blob([csv], {type: 'application/csv'}), 'graphalizer.csv')
+
+  addVerticalAxis: ->
+    newAxis = new VerticalAxis()
+    newAxis.name 'Achse ' + (@axes().length + 1)
+    @axes.push newAxis
+
+  addHorizontalAxis: ->
+    newAxis = new HorizontalAxis()
+    newAxis.name 'Achse ' + (@axes().length + 1)
+    @axes.push newAxis
+
+  template: (name, vars) ->
+    __templates[name](vars)
+
 GUI = null
-
 $ ->
-  GUI =
-    selectedAxis: observable(null)
-    mode: observable('setup')
-    template: (name, vars) ->
-      __templates[name](vars)
-
-  GUI.mode.subscribe (mode) ->
-    if mode is 'analyze'
-      axis.isEditing(no) for axis in AXES()
-      doc.isEditing(no) for doc in IMAGES
+  GUI = new GraphalizerViewModel()
+  ko.applyBindings(GUI)
 
   GUI.showWindow = (content) ->
     overlay = $('<div class="overlay"><div class="window"/></div>').hide().appendTo('body')
@@ -35,86 +64,10 @@ $ ->
     ctn = group.find('.ctn')
     if ctn.is(":visible") then ctn.slideUp() else ctn.slideDown()
 
-  showGroup = (group) ->
-    group.find('h1').addClass('on')
-    group.find('.ctn').slideDown()
-
-  hideGroup = (group) ->
-    group.find('h1').removeClass('on')
-    group.find('.ctn').slideUp()
-
   $('.sidebar .group:not(.notmanual) h1').on 'click', ->
     toggleGroup $(@).parent()
 
-  $('.sidebar .group .ctn').hide()
-
-  $("#name").on "change keyup paste input", ->
-    if $(@).val() is "rezilahparG"
-      $('body').css 'transform', 'rotateY(180deg)'
-
-  $("#interval").on "change keyup paste input", ->
-    v = parseFloat $(@).val()
-    if v > 0
-      GUI.selectedAxis()?.interval(v)
-
-  $('#newVAxis').on 'click', ->
-    newAxis = new VerticalAxis()
-    newAxis.name 'Achse ' + (AXES().length + 1)
-    AXES.push newAxis
-  $('#newHAxis').on 'click', ->
-    newAxis = new HorizontalAxis()
-    newAxis.name 'Achse ' + (AXES().length + 1)
-    AXES.push newAxis
-
-  GUI.selectedAxis.subscribe (v, old) ->
-    if old isnt null
-      old.minVal.unbind($('#minimum'))
-      old.maxVal.unbind($('#maximum'))
-      old.type.unbind($('#type'))
-      old.name.unbind($('#name'))
-
-    if v isnt null
-      tpl = new TemplateWrapper $('#editAxis .ctn').html(GUI.template('axisEdit'))
-
-      GUI.selectedAxis().minVal.bind tpl.get('minimum'), (v) -> parseFloat(v)
-      GUI.selectedAxis().maxVal.bind tpl.get('maximum'), (v) -> parseFloat(v)
-      GUI.selectedAxis().type.bind tpl.get('type')
-      GUI.selectedAxis().name.bind tpl.get('name')
-      GUI.selectedAxis().interval.bind tpl.get('interval'), (v) -> parseFloat(v)
-      #tpl.get('interval').val(v.interval())
-
-      tpl.get('deleteAxis').on 'click', ->
-        GUI.selectedAxis().remove()
-
-      showGroup $('#editAxis')
-      console.log 'axis selected'
-    else
-      console.log 'nothing selected'
-      hideGroup $('#editAxis')
-
-  GUI.updateAllValues = ->
-    $('#analyzeResults').html GUI.template('resultsTable', {
-      axes: AXES()
-      points: POINTS()
-    })
-
-  POINTS.subscribe GUI.updateAllValues
-  AXES.subscribe GUI.updateAllValues
-
-  $('#exportCSV').on 'mousedown', ->
-    csv = ''
-    for axis in AXES()
-      csv += axis.name() + ';'
-    csv += '\n'
-    for point in POINTS()
-      for v in point.getValues()
-        csv += v + ';'
-      csv += '\n'
-
-    $(this)
-    .attr('href', "data:application/csv," + encodeURIComponent(csv))
-    .attr('target', '_blank')
-    .attr('download', 'values.csv')
+  #$('.sidebar .group .ctn').hide()
 
 class TemplateWrapper
   constructor: (@rootNode) ->

@@ -1,6 +1,6 @@
 class PdfImport
   constructor: (file) ->
-    @selectedPage = observable null
+    @selectedPage = ko.observable null
 
     window = GUI.showWindow(GUI.template('pdfimport'))
     window.get('preview').css

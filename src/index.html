@@ -6,6 +6,8 @@
     <script src="js/libs/jquery-2.1.1.min.js" language="javascript"></script>
     <script src="js/libs/kinetic-v5.1.9.min.js" language="javascript"></script>
     <script src="js/libs/pdf.js" language="javascript"></script>
+    <script src="js/libs/knockout-3.3.0.js" language="javascript"></script>
+    <script src="js/libs/FileSaver.min.js" language="javascript"></script>
     <script src="js/graphalizer.min.js" language="javascript"></script>
     <link href="css/test.css" rel="stylesheet"/>
 </head>
@@ -24,15 +26,39 @@
             <h1>Achsen</h1>
 
             <div class="ctn">
-                <button class="h50 w50" id="newVAxis">Vertikale Achse einfügen</button>
-                <button class="h50 w50 r" id="newHAxis">Horizontale Achse einfügen</button>
+                <button class="h50 w50" data-bind="click: addVerticalAxis">Vertikale Achse einfügen</button>
+                <button class="h50 w50 r" data-bind="click: addHorizontalAxis">Horizontale Achse einfügen</button>
             </div>
             <div class="clear">&nbsp;</div>
         </div>
         <div class="group notmanual" id="editAxis">
             <h1>Achse bearbeiten</h1>
 
-            <div class="ctn">
+            <div class="ctn" data-bind="with: selectedAxis, visible: isAxisSelected">
+                <label>Name</label>
+                <input type="text" data-bind="textInput: name"/>
+
+                <label>Minimum</label>
+                <input type="number" data-bind="textInput: minVal" step="any"/>
+                <label>Maximum</label>
+                <input type="number" data-bind="textInput: maxVal" step="any"/>
+                <label>Intervall</label>
+                <input type="number" data-bind="textInput: interval" step="any"/>
+
+                <label>Skalierung</label>
+                <select data-bind="value: type">
+                    <option value="linear">Linear</option>
+                    <option value="logarithmic">Logarithmisch</option>
+                </select>
+
+                <label>Typ</label>
+                <select data-bind="value: axisMode">
+                    <option value="">Standard</option>
+                    <option value="x2">x2</option>
+                    <option value="x10">x10</option>
+                </select>
+
+                <button class="h25 w100 destructive" data-bind="click: remove">Achse löschen</button>
             </div>
             <div class="clear">&nbsp;</div>
         </div>
@@ -40,9 +66,20 @@
             <h1>Analysieren</h1>
 
             <div class="ctn">
-                <a class="button h25 w100" id="exportCSV">Als CSV speichern</a>
+                <a class="button h25 w100" data-bind="click: exportCsv">Als CSV speichern</a>
 
-                <div id="analyzeResults" style="clear: both;"></div>
+                <div style="clear: both;">
+                    <table>
+                        <tr data-bind="foreach: axes">
+                            <th data-bind="text: name"></th>
+                        </tr>
+                        <!-- ko foreach: points -->
+                        <tr data-bind="foreach: values">
+                            <td data-bind="text: $data"></td>
+                        </tr>
+                        <!-- /ko -->
+                    </table>
+                </div>
             </div>
             <div class="clear">&nbsp;</div>
         </div>

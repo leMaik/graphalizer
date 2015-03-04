@@ -24,8 +24,8 @@ ImageCircle = (config) ->
       offset:
         x: config.size / 2 - 1
         y: config.size / 2 - 1
-
-    group.draw()
+    if group.parent?
+      group.draw()
   img.src = config.image
 
   if config.tooltip?
