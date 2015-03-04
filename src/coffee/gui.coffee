@@ -7,7 +7,7 @@ class GraphalizerViewModel
 
     @mode = ko.observable('setup')
     @mode.subscribe (mode) =>
-      if mode is 'analyze'
+      if mode isnt 'setup'
         axis.isEditing(no) for axis in @axes()
         doc.isEditing(no) for doc in IMAGES
 
@@ -59,6 +59,11 @@ $ ->
     $(this).addClass('active')
     GUI.mode 'analyze'
 
+  $('#markModeSelector').on 'click', ->
+    $(this).parent().children('.active').removeClass('active')
+    $(this).addClass('active')
+    GUI.mode 'mark'
+
   toggleGroup = (group) ->
     group.find('h1').toggleClass('on')
     ctn = group.find('.ctn')
@@ -66,8 +71,6 @@ $ ->
 
   $('.sidebar .group:not(.notmanual) h1').on 'click', ->
     toggleGroup $(@).parent()
-
-  #$('.sidebar .group .ctn').hide()
 
 class TemplateWrapper
   constructor: (@rootNode) ->

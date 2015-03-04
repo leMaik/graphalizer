@@ -29,43 +29,57 @@ class ScalableImage
         #the point 'relative' is now relative to the original image, which is nice
 
         #wrap the image for the analyzer
-        document = new ImageWrapper(original)
+        markImg = new Image()
+        markImg.onload = =>
+          oc = $('<canvas/>').get(0);
+          oc.width = markImg.width
+          oc.height = markImg.height
+          ctx = oc.getContext('2d')
+          ctx.drawImage(markImg, 0, 0, markImg.width, markImg.height)
+          isMarked = (x, y) =>
+            p = @img.getAbsoluteTransform().point({x: x, y: y})
+            return ctx.getImageData(p.x, p.y, 1, 1).data[3] > 0
 
-        #use the analyzer to find the nearest point on the graph
-        fixedClickPos = new GraphAnalyser(document).findGraphInProximity(relative)
+          document = new ImageWrapper(original, isMarked)
 
-        #transform that found point back to canvas coordinates
-        transformBack = (pos) =>
-          newPos =
-            x: pos.x * @img.width() / original.width
-            y: pos.y * @img.height() / original.height
-          newPos = @img.getAbsoluteTransform().copy().point(newPos)
+          #use the analyzer to find the nearest point on the graph
+          fixedClickPos = new GraphAnalyser(document).findGraphInProximity(relative)
 
-        for rawPoint in new GraphAnalyser(document).analyse(fixedClickPos)
-          console.log rawPoint
-          absolutePos = transformBack rawPoint
-          POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
+          #transform that found point back to canvas coordinates
+          transformBack = (pos) =>
+            newPos =
+              x: pos.x * @img.width() / original.width
+              y: pos.y * @img.height() / original.height
+            newPos = @img.getAbsoluteTransform().copy().point(newPos)
 
-        absoluteFixedPos = transformBack fixedClickPos
-        point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
-        Layers.POINTS.add point.kineticElement
-        Layers.POINTS.draw()
-        POINTS.push point
+          for rawPoint in new GraphAnalyser(document).analyse(fixedClickPos)
+            console.log rawPoint
+            absolutePos = transformBack rawPoint
+            POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
 
-        pixel = document.getPixel(relative.x, relative.y)
-        hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
-        console.log 'Color at %d,%d is %s', relative.x, relative.y, hexColor
+          absoluteFixedPos = transformBack fixedClickPos
+          point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
+          Layers.POINTS.add(point.kineticElement).draw()
+          POINTS.push point
 
-        for axis in AXES()
-          console.log '%s: %.2f', axis.name(), axis.valueAt(mousePos.x, mousePos.y)
+          pixel = document.getPixel(relative.x, relative.y)
+          hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
+
+        markImg.src = @markLayer.toDataURL()
+      else if GUI.mode() is 'mark'
+        #nothing to do here
       else
         @isEditing(!@isEditing())
 
     Layers.PAPER.add(@img).draw()
+    @markLayer = new Kinetic.Layer()
+    STAGE.add(@markLayer)
 
     @resize = null
     @rotate = null
     @removeBtn = null
+
+    @isDrawing = ko.observable(no)
 
     @isEditing = ko.observable(no)
     @isEditing.subscribe (v) =>
@@ -76,9 +90,26 @@ class ScalableImage
         @addEditControls()
       else
         @removeEditControls()
+        @isDrawing no
 
     @img.on 'mousedown', =>
       @img.draggable(yes) if GUI.mode() is 'setup'
+      @isDrawing(yes) if GUI.mode() is 'mark'
+    @img.on 'mouseup', =>
+      @isDrawing(no) if GUI.mode() is 'mark'
+    @img.on 'mouseout', =>
+      @isDrawing(no) if GUI.mode() is 'mark'
+    @img.on 'mousemove', =>
+      if @isDrawing()
+        mousePos = STAGE.getPointerPosition()
+        relative = @img.getAbsoluteTransform().copy().invert().point(mousePos) #get mouse position relative to @img
+        @markLayer.add(new Kinetic.Circle
+          x: mousePos.x
+          y: mousePos.y
+          radius: 20
+          fill: 'red',
+          hitFunc: -> #disable hitting
+        ).draw()
     @img.on 'dragmove', =>
       if @isEditing()
         @setControlsPosition()
