@@ -78,15 +78,19 @@
                 <a class="button h25 w100" data-bind="click: exportCsv">Als CSV speichern</a>
 
                 <div style="clear: both;">
-                    <table>
+                    <table class="values">
                         <tr data-bind="foreach: axes">
-                            <th data-bind="click: $parent.moveLeft, ifnot: isFirst">&larr;</th>
-                            <th data-bind="text: name"></th>
-                            <th data-bind="click: $parent.moveRight, ifnot: isLast">&rarr;</th>
+                            <th>
+                                <img src="res/left2.svg" width="20" height="20" alt="&larr;"
+                                     data-bind="click: $parent.moveLeft, visible: !isFirst()"/>
+                                <span data-bind="text: name"></span>
+                                <img src="res/right2.svg" width="20" height="20" alt="&rarr;"
+                                     data-bind="click: $parent.moveRight, visible: !isLast()"/>
+                            </th>
                         </tr>
                         <!-- ko foreach: points -->
                         <tr data-bind="foreach: values">
-                            <td data-bind="text: $data" colspan="3"></td>
+                            <td data-bind="text: $data"></td>
                         </tr>
                         <!-- /ko -->
                     </table>
