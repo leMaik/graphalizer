@@ -13,6 +13,6 @@
 </div>
 
 <div class="buttons">
-    <button class="primary" data-bind="click: importPage">OK</button>
-    <button data-bind="click: cancel">Abbrechen</button>
+    <button class="flat" data-bind="click: importPage">OK</button>
+    <button class="flat" data-bind="click: cancel">Abbrechen</button>
 </div>

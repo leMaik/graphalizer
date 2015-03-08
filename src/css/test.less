@@ -1,14 +1,20 @@
-@dark: #6991ac;
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+
+@primary: #3F51B5;
+@secondary: #E91E63;
 @silver: #f5f5f5;
 @red: #d75c37;
 @light: #fff;
-@gray: #67727a;
 
 * {
   padding: 0;
   margin: 0;
   border: 0;
   box-sizing: border-box;
+
+  &:focus {
+    outline: 0; //remove default outline in Chrome
+  }
 }
 
 html, body {
@@ -19,7 +25,7 @@ html, body {
 
 body {
   overflow: hidden;
-  font-family: "Ubuntu", sans-serif;
+  font-family: "Roboto", sans-serif;
   background: @light;
 }
 
@@ -37,9 +43,12 @@ h1, h2 {
 .header {
   width: 100%;
   height: 50px;
-  background: @dark;
+  background: @primary;
   margin: -50px 0 0;
   z-index: 10;
+  position: relative;
+  box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);
+  padding-right: @sidebarWidth;
 
   h1 {
     height: 50px;
@@ -48,14 +57,14 @@ h1, h2 {
     padding: 0 20px;
     font-size: 1.5em;
     color: white;
-    text-shadow: -1px -1px 0 darken(@dark, 20%);
     float: left;
-    border-right: 1px solid lighten(@dark, 10%);
   }
 
   ul.menu {
     list-style-type: none;
     display: block;
+    float: left;
+    clear: none;
     padding: 0;
     margin: 0;
     height: 50px;
@@ -73,8 +82,23 @@ h1, h2 {
     }
   }
 
-  li:hover, h1:hover, li.active {
-    background: lighten(@dark, 10%);
+  li.active {
+    border-bottom: 3px solid @secondary;
+  }
+
+  .button.right {
+    height: 50px;
+    width: 50px;
+    padding: 10px;
+    margin: 0;
+    cursor: pointer;
+    float: right;
+    background: transparent;
+    box-shadow: none;
+
+    &:active {
+      background: lighten(@primary, 20%);
+    }
   }
 }
 
@@ -92,27 +116,28 @@ h1, h2 {
 }
 
 .sidebar {
-  height: ~"calc(100% - 50px)";
+  height: 100%;
   width: @sidebarWidth;
   position: fixed;
-  top: 50px;
+  top: 0;
   right: 0;
-  box-shadow: 0 0 5px @gray;
-  padding: 20px;
-  background: @silver;
+  padding: 60px 20px 20px;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 11;
+  box-shadow: inset 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);
 
   .group {
-    border-radius: 5px;
-    border: 1px solid @dark;
-    margin: 0 0 10px;
+    margin: 0 0 20px;
     clear: both;
     background: white;
     padding: 10px 10px 0;
+    box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);
 
-    &.notmanual {
-      h1 {
-        cursor: default;
-      }
+    &.hidden {
+      box-shadow: none;
+      background: transparent;
+      padding: 0;
+      margin: 0 0 10px; //+ 10px from last ui element = 20px
     }
   }
 
@@ -123,25 +148,17 @@ h1, h2 {
   }
 
   h1 {
-    color: white;
-    background: @dark;
-    border-radius: 5px;
+    color: @primary;
     font-size: 1.1em;
-    margin: -11px  -11px 0;
-    cursor: pointer;
+    margin: 0;
     display: block;
-    line-height: 30px;
-    padding: 0 5px;
-
-    &.on {
-      border-radius: 5px 5px 0 0;
-    }
+    padding: 0;
   }
 
-  button, input, a.button, select {
+  input, select {
     background: @silver;
     border: 1px solid darken(@silver, 20%);
-    box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.3) inset;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.3) inset;
     border-radius: 3px;
     padding: 5px;
     outline: 0;
@@ -157,30 +174,20 @@ h1, h2 {
     &:active {
       border: 1px solid darken(@silver, 25%);
     }
-
-    &.destructive {
-      color: @red;
-      border-color: @red;
-    }
   }
 
   button, a.button {
-    cursor: pointer;
-    color: black;
-    font-size: 11pt;
-    line-height: 18px;
-
-    &:active {
-      margin-top: 1px;
-      margin-bottom: 9px;
-    }
-
     &.w50 {
+      margin: 0 0 10px;
       width: ~"calc(50% - 5px)";
+      float: left;
+      clear: none;
     }
 
     &.w100 {
+      clear: both;
       width: 100%;
+      margin: 0 0 10px;
     }
 
     &.h25 {
@@ -199,6 +206,11 @@ h1, h2 {
     &.r {
       float: right;
     }
+
+    &.c {
+      float: none;
+      margin: 0 auto 10px;
+    }
   }
 
   a.button {
@@ -207,11 +219,11 @@ h1, h2 {
     text-align: center;
 
     &.h25 {
-      line-height: 23px;
+      line-height: 25px;
     }
 
     &.h50 {
-      line-height: 48px;
+      line-height: 50px;
     }
   }
 
@@ -222,7 +234,7 @@ h1, h2 {
     margin: 0 5px 0 0;
     display: block;
     font-size: 0.9em;
-    color: @dark;
+    color: @primary;
     padding: 6px 0;
 
     &:after {
@@ -240,6 +252,76 @@ h1, h2 {
   }
 }
 
+button, a.button {
+  height: 30px;
+  border-radius: 2px;
+  box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);
+  padding: 0 20px;
+  margin: 0 0 0 10px;
+  font-size: 11pt;
+  cursor: pointer;
+  border: none;
+  display: block;
+  background: #fff;
+  color: black;
+  text-transform: uppercase;
+
+  &:hover {
+    background: #fff;
+  }
+
+  &:active {
+    background: darken(white, 40%)
+  }
+
+  &.primary {
+    background: @primary;
+    color: white;
+
+    &:hover {
+      background: @primary;
+    }
+
+    &:active {
+      background: lighten(@primary, 20%)
+    }
+  }
+
+  &.secondary {
+    background: @secondary;
+    color: white;
+
+    &:hover {
+      background: @secondary;
+    }
+
+    &:active {
+      background: lighten(@secondary, 20%)
+    }
+  }
+
+  &.flat {
+    color: @primary;
+    box-shadow: none;
+    background: transparent;
+    margin: 0 4px;
+    padding: 0 8px;
+
+    &:active {
+      background: rgba(red(@primary), green(@primary), blue(@primary), 0.3);
+    }
+
+    &.secondary {
+      color: @secondary;
+      background: transparent;
+
+      &:active {
+        background: rgba(red(@secondary), green(@secondary), blue(@secondary), 0.3);
+      }
+    }
+  }
+}
+
 .overlay {
   width: 100%;
   height: 100%;
@@ -247,20 +329,32 @@ h1, h2 {
   top: 0;
   left: 0;
   z-index: 42;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.6);
 
   .window {
     width: 61.8%; //Golden ratio
+    max-height: 80%;
+    overflow: auto;
     margin: 100px auto 0;
     background: white;
-    border: 1px solid @silver;
-    box-shadow: 0 0 20px #888;
-    padding: 20px;
+    box-shadow: 0 15px 24px rgba(0, 0, 0, 0.22), 0 19px 76px rgba(0, 0, 0, 0.3);
+    padding: 24px;
 
     h1 {
-      color: @dark;
+      color: @primary;
       font-size: 18pt;
       padding: 0;
+      margin: 0 0 10px;
+    }
+
+    h2 {
+      color: @primary;
+      font-size: 16pt;
+      padding: 0;
+      margin: 0 0 10px;
+    }
+
+    p {
       margin: 0 0 20px;
     }
 
@@ -292,47 +386,20 @@ h1, h2 {
     }
 
     .buttons {
+      margin: 16px -8px -10px;
       height: 30px;
       clear: both;
-    }
 
-    button {
-      height: 30px;
-      border-radius: 3px;
-      box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.3) inset;
-      padding: 0 20px;
-      margin: 0 0 0 10px;
-      float: right;
-      font-size: 11pt;
-      cursor: pointer;
-      border: 1px solid @silver;
-
-      &:hover {
-        background: lighten(@silver, 10%)
-      }
-
-      &:active {
-        background: darken(@silver, 10%)
-      }
-
-      &.primary {
-        background: @dark;
-        border-color: darken(@dark, 10%);
-        color: white;
-
-        &:hover {
-          background: lighten(@dark, 10%)
-        }
-
-        &:active {
-          background: darken(@dark, 10%)
-        }
+      button {
+        float: right;
       }
     }
   }
 }
 
 table.values {
+  margin: 0 0 10px;
+
   th {
     line-height: 20px;
     height: 20px;

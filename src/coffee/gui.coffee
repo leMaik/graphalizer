@@ -3,13 +3,18 @@ class GraphalizerViewModel
     @axes = AXES
     @points = POINTS
     @selectedAxis = ko.observable(null)
-    @isAxisSelected = ko.computed => @selectedAxis isnt null
+    @isAxisSelected = ko.computed => @selectedAxis() isnt null
 
     @mode = ko.observable('setup')
     @mode.subscribe (mode) =>
       if mode isnt 'setup'
         axis.isEditing(no) for axis in @axes()
         doc.isEditing(no) for doc in IMAGES
+
+      if mode is 'mark'
+        img.showMarkings() for img in IMAGES
+      else
+        img.hideMarkings() for img in IMAGES
 
   exportCsv: =>
     csv = ''
@@ -61,6 +66,16 @@ class GraphalizerViewModel
   template: (name, vars) ->
     __templates[name](vars)
 
+  showAboutDialog: ->
+    class aboutVm
+      constructor: ->
+        window = GUI.showWindow GUI.template('about')
+        ko.applyBindings(this, window.root())
+
+      close: ->
+        GUI.closeWindow()
+    new aboutVm()
+
 GUI = null
 $ ->
   GUI = new GraphalizerViewModel()
@@ -89,14 +104,6 @@ $ ->
     $(this).parent().children('.active').removeClass('active')
     $(this).addClass('active')
     GUI.mode 'mark'
-
-  toggleGroup = (group) ->
-    group.find('h1').toggleClass('on')
-    ctn = group.find('.ctn')
-    if ctn.is(":visible") then ctn.slideUp() else ctn.slideDown()
-
-  $('.sidebar .group:not(.notmanual) h1').on 'click', ->
-    toggleGroup $(@).parent()
 
 class TemplateWrapper
   constructor: (@rootNode) ->

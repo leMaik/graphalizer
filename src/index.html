@@ -20,30 +20,30 @@
             <li id="markModeSelector">Graphen markieren</li>
             <li id="analyzeModeSelector">Analysieren</li>
         </ul>
+        <img src="res/info_white.svg" alt="Info" class="button right" data-bind="click: showAboutDialog"/>
     </div>
     <div id="canvas"></div>
     <div class="sidebar">
-        <div class="group" data-bind="visible: mode() == 'mark'">
-            <h1>Markierung</h1>
-
+        <div class="hidden group" data-bind="visible: mode() == 'mark'">
             <div class="ctn">
-                <button class="h25 w100" data-bind="click: removeMarkings">Markierungen entfernen</button>
+                <button class="h25 w100 secondary" data-bind="click: removeMarkings">
+                    Markierungen entfernen
+                </button>
             </div>
             <div class="clear">&nbsp;</div>
         </div>
-        <div class="group">
-            <h1>Achsen</h1>
-
+        <div class="hidden group">
             <div class="ctn">
-                <button class="h50 w50" data-bind="click: addVerticalAxis">Vertikale Achse einfügen</button>
-                <button class="h50 w50 r" data-bind="click: addHorizontalAxis">Horizontale Achse einfügen</button>
+                <button class="h50 w50 primary" data-bind="click: addVerticalAxis">Vertikale<br/>Achse einfügen</button>
+                <button class="h50 w50 r primary" data-bind="click: addHorizontalAxis">Horizontale<br/>Achse einfügen
+                </button>
             </div>
             <div class="clear">&nbsp;</div>
         </div>
-        <div class="group notmanual" id="editAxis">
+        <div class="group" data-bind="visible: isAxisSelected">
             <h1>Achse bearbeiten</h1>
 
-            <div class="ctn" data-bind="with: selectedAxis, visible: isAxisSelected">
+            <div class="ctn" data-bind="with: selectedAxis">
                 <label>Name</label>
                 <input type="text" data-bind="textInput: name"/>
 
@@ -60,23 +60,23 @@
                     <option value="logarithmic">Logarithmisch</option>
                 </select>
 
+                <!-- ko if: type() == 'logarithmic' -->
                 <label>Typ</label>
                 <select data-bind="value: axisMode">
                     <option value="">Standard</option>
                     <option value="x2">x2</option>
                     <option value="x10">x10</option>
                 </select>
+                <!-- /ko -->
 
-                <button class="h25 w100 destructive" data-bind="click: remove">Achse löschen</button>
+                <button class="h25 w100 flat secondary" data-bind="click: remove">Achse löschen</button>
             </div>
             <div class="clear">&nbsp;</div>
         </div>
-        <div class="group">
+        <div class="group" data-bind="visible: axes().length > 0">
             <h1>Analysieren</h1>
 
             <div class="ctn">
-                <a class="button h25 w100" data-bind="click: exportCsv">Als CSV speichern</a>
-
                 <div style="clear: both;">
                     <table class="values">
                         <tr data-bind="foreach: axes">
@@ -95,6 +95,9 @@
                         <!-- /ko -->
                     </table>
                 </div>
+                <button class="h25 w50 c flat" data-bind="click: exportCsv, visible: points().length > 0">
+                    Als CSV speichern
+                </button>
             </div>
             <div class="clear">&nbsp;</div>
         </div>

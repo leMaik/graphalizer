@@ -208,3 +208,6 @@ class ScalableImage
       @removeEditControls()
     @img.remove()
     Layers.PAPER.draw()
+
+  showMarkings: => @markLayer.opacity(1).draw()
+  hideMarkings: => @markLayer.opacity(0).draw()
