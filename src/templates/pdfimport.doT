@@ -1,12 +1,18 @@
 <h1>PDF-Import</h1>
+<!-- ko if: isLoading -->
+<div class="center preview" style="background: url(res/loader.gif) center center no-repeat"></div>
+<!-- /ko -->
+<!-- ko ifnot: isLoading -->
+<div class="center preview" data-bind="style: { 'background-image': 'url(' + imageData() + ')' }"></div>
+<!-- /ko -->
 
-<div class="center preview" data-id="preview"></div>
 <div class="pagesel">
     <label>Seite </label>
-    <input type="number" data-id="page" value="1"/> von <span data-id="pagesCount">?</span>
+    <input type="number" min="1" data-bind="attr: { max: pageCount }, textInput: selectedPage"/>
+    von <span data-bind="text: pageCount"></span>
 </div>
 
 <div class="buttons">
-    <button class="primary" data-id="import">OK</button>
-    <button data-id="cancel">Abbrechen</button>
+    <button class="primary" data-bind="click: importPage">OK</button>
+    <button data-bind="click: cancel">Abbrechen</button>
 </div>

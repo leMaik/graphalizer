@@ -48,6 +48,7 @@ $ ->
   GUI.closeWindow = ->
     $('.overlay').fadeOut 200
     $('.overlay *').off() #make sure all event handlers are detached
+    ko.cleanNode $('.overlay')[0]
 
   $('#setupModeSelector').on 'click', ->
     $(this).parent().children('.active').removeClass('active')
@@ -76,3 +77,4 @@ class TemplateWrapper
   constructor: (@rootNode) ->
   get: (id) =>
     @rootNode.find('*[data-id=' + id + ']')
+  root: => @rootNode[0]
