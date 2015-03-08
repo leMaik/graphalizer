@@ -52,6 +52,12 @@ class Axis
 
     @axis.add(@line).draw()
 
+    @isFirst = ko.computed =>
+      GUI.axes().indexOf(@) == 0
+
+    @isLast = ko.computed =>
+      GUI.axes().indexOf(@) == GUI.axes().length - 1
+
   getMarks: =>
     if @type() is "logarithmic"
       marks = []

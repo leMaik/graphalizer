@@ -23,6 +23,9 @@ class GraphalizerViewModel
 
     saveAs(new Blob([csv], {type: 'application/csv'}), 'graphalizer.csv')
 
+  removeMarkings: ->
+    img.markLayer.removeChildren().draw() for img in IMAGES
+
   addVerticalAxis: ->
     newAxis = new VerticalAxis()
     newAxis.name 'Achse ' + (@axes().length + 1)
@@ -32,6 +35,28 @@ class GraphalizerViewModel
     newAxis = new HorizontalAxis()
     newAxis.name 'Achse ' + (@axes().length + 1)
     @axes.push newAxis
+
+  moveLeft: (axis) =>
+    i = @axes().indexOf(axis)
+    if i > 0 #if not first
+      tmp = @axes()[i]
+      @axes()[i] = @axes()[i - 1]
+      @axes()[i - 1] = tmp
+      @axes.valueHasMutated()
+
+  moveRight: (axis) =>
+    i = @axes().indexOf(axis)
+    if i < @axes().length - 1 #if not last
+      tmp = @axes()[i]
+      @axes()[i] = @axes()[i + 1]
+      @axes()[i + 1] = tmp
+      @axes.valueHasMutated()
+
+  leftMost: (axis) =>
+    @axes().indexOf(axis) > 0
+
+  rightMost: (axis) =>
+    @axes().indexOf(axis) < @axes().length - 1
 
   template: (name, vars) ->
     __templates[name](vars)
