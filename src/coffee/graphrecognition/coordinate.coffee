@@ -1,6 +1,6 @@
 #this class can also be avoided, simply use dynamic objects and null for invalid coordinates
 class Coordinate
-  constructor: (...) ->
+  constructor: ->
     switch arguments.length
       when 1
         @x = arguments[0].x

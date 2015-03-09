@@ -201,7 +201,7 @@ class GraphAnalyser
       else
         return posAccum[posAccum.length() / 2]
     else # mean and unimplemented (mean is fallback)
-      return Util.mean posAccum
+      return StochasticHelpers.mean posAccum
 
   gatherGraphPoints: (origin) ->
     list = []

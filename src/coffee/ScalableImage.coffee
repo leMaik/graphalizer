@@ -133,7 +133,7 @@ class ScalableImage
       isMarked = (x, y) =>
         p = @img.getAbsoluteTransform().point({x: x, y: y})
         return ctx.getImageData(p.x, p.y, 1, 1).data[3] > 0
-
+      console.log "(0,0) marked = " + isMarked(0, 0)
       document = new ImageWrapper(original, isMarked)
 
       #transform that found point back to canvas coordinates
@@ -145,7 +145,7 @@ class ScalableImage
 
       dots = @markLayer.getChildren().toArray()
       if dots.length > 0
-        firstMarkedDot = { x: dots[0].x(), y: dots[0].y() }
+        firstMarkedDot = {x: dots[0].x(), y: dots[0].y()}
 
       for rawPoint in new GraphAnalyser(document).analyse(firstMarkedDot)
         console.log rawPoint
