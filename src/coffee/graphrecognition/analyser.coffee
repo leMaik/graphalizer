@@ -123,13 +123,13 @@ class GraphAnalyser
   findUpMost: (origin) =>
     while origin.y > 0 and @isWithinGraph({x: origin.x, y: origin.y-1})
       origin.y--
-    return makeCoordinate origin # deep copy
+    return new Coordinate(origin) # deep copy
 
   findLowest: (origin) =>
     documentHeight = @parentDocument.getHeight()
     while origin.y < documentHeight and @isWithinGraph({x: origin.x, y: origin.y+1})
       origin.y++
-    return makeCoordinate origin # deep copy
+    return new Coordinate(origin) # deep copy
 
   # This function seeks the leftest and most bottom point of the graph
   # under the passed position (origin). It uses the member variable 'graphColor'
@@ -177,13 +177,13 @@ class GraphAnalyser
   findUpMostMarked: (origin) ->
     while origin.y > 0 and @parentDocument.isMarked {x: origin.x, y: origin.y-1}
       origin.y--
-    return makeCoordinate origin # deep copy
+    return new Coordinate(origin) # deep copy
 
   findLowestMarked: (origin) ->
     documentHeight = @parentDocument.getHeight()
     while origin.y < documentHeight and @parentDocument.isMarked {x: origin.x, y: origin.y+1}
       origin.y++
-    return makeCoordinate origin # deep copy
+    return new Coordinate(origin) # deep copy
 
   getCenterOfMass: (origin) ->
     upMost = @findUpMostMarked origin
@@ -191,7 +191,7 @@ class GraphAnalyser
 
     posAccum = []
     for y in [upMost.y .. lowest.y]
-      if @isWithinGraph makeCoordinate(origin.x, y)
+      if @isWithinGraph new Coordinate(origin.x, y)
         posAccum.push y
 
     if @qualitySettings.heuristic == HeuristicTypes.median
@@ -205,7 +205,7 @@ class GraphAnalyser
 
   gatherGraphPoints: (origin) ->
     list = []
-    originalOrigin = makeCoordinate origin
+    originalOrigin = new Coordinate(origin)
     while origin.x < @parentDocument.getWidth() and @parentDocument.isMarked origin
       origin.y = @getCenterOfMass origin
       list.push origin
@@ -250,7 +250,7 @@ class GraphAnalyser
     # Find marked region
     anyMarkedPoint = @findAnyMarkedRegion()
 
-    console.log anyMarkedRegion
+    console.log anyMarkedPoint
 
     # Has a point beend found? no?
     return undefined if anyMarkedPoint is Coordinate::invalid()
