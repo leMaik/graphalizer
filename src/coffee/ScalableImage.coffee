@@ -29,43 +29,16 @@ class ScalableImage
         #the point 'relative' is now relative to the original image, which is nice
 
         #wrap the image for the analyzer
-        markImg = new Image()
-        markImg.onload = =>
-          oc = $('<canvas/>').get(0);
-          oc.width = markImg.width
-          oc.height = markImg.height
-          ctx = oc.getContext('2d')
-          ctx.drawImage(markImg, 0, 0, markImg.width, markImg.height)
-          isMarked = (x, y) =>
-            p = @img.getAbsoluteTransform().point({x: x, y: y})
-            return ctx.getImageData(p.x, p.y, 1, 1).data[3] > 0
+        document = new ImageWrapper(original)
 
-          document = new ImageWrapper(original, isMarked)
+        #use the analyzer to find the nearest point on the graph
+        fixedClickPos = new GraphAnalyser(document).findGraphInProximity(relative)
 
-          #use the analyzer to find the nearest point on the graph
-          fixedClickPos = new GraphAnalyser(document).findGraphInProximity(relative)
+        absoluteFixedPos = @_transformBack fixedClickPos
+        point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
+        Layers.POINTS.add(point.kineticElement).draw()
+        POINTS.push point
 
-          #transform that found point back to canvas coordinates
-          transformBack = (pos) =>
-            newPos =
-              x: pos.x * @img.width() / original.width
-              y: pos.y * @img.height() / original.height
-            newPos = @img.getAbsoluteTransform().copy().point(newPos)
-
-          for rawPoint in new GraphAnalyser(document).analyse(fixedClickPos)
-            console.log rawPoint
-            absolutePos = transformBack rawPoint
-            POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
-
-          absoluteFixedPos = transformBack fixedClickPos
-          point = new AnalyzeValue(absoluteFixedPos.x, absoluteFixedPos.y)
-          Layers.POINTS.add(point.kineticElement).draw()
-          POINTS.push point
-
-          pixel = document.getPixel(relative.x, relative.y)
-          hexColor = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1) #http://stackoverflow.com/a/5624139
-
-        markImg.src = @markLayer.toDataURL()
       else if GUI.mode() is 'mark'
         #nothing to do here
       else
@@ -119,6 +92,12 @@ class ScalableImage
       else
         @isEditing yes
 
+  _transformBack: (pos) =>
+    original = @img.image()
+    return @img.getAbsoluteTransform().copy().point
+      x: pos.x * @img.width() / original.width
+      y: pos.y * @img.height() / original.height
+
   analyze: =>
     original = @img.image();
 
@@ -136,20 +115,13 @@ class ScalableImage
       console.log "(0,0) marked = " + isMarked(0, 0)
       document = new ImageWrapper(original, isMarked)
 
-      #transform that found point back to canvas coordinates
-      transformBack = (pos) =>
-        newPos =
-          x: pos.x * @img.width() / original.width
-          y: pos.y * @img.height() / original.height
-        newPos = @img.getAbsoluteTransform().copy().point(newPos)
-
       dots = @markLayer.getChildren().toArray()
       if dots.length > 0
         firstMarkedDot = {x: dots[0].x(), y: dots[0].y()}
 
       for rawPoint in new GraphAnalyser(document).analyse(firstMarkedDot)
         console.log rawPoint
-        absolutePos = transformBack rawPoint
+        absolutePos = @_transformBack rawPoint
         POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
 
     markImg.src = @markLayer.toDataURL()
