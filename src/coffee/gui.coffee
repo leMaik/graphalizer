@@ -41,6 +41,10 @@ class GraphalizerViewModel
     newAxis.name 'Achse ' + (@axes().length + 1)
     @axes.push newAxis
 
+  analyzeDocuments: ->
+    for image in IMAGES
+      image.analyze()
+
   moveLeft: (axis) =>
     i = @axes().indexOf(axis)
     if i > 0 #if not first

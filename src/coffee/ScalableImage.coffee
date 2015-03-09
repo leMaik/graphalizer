@@ -119,6 +119,41 @@ class ScalableImage
       else
         @isEditing yes
 
+  analyze: =>
+    original = @img.image();
+
+    #wrap the image for the analyzer
+    markImg = new Image()
+    markImg.onload = =>
+      oc = $('<canvas/>').get(0);
+      oc.width = markImg.width
+      oc.height = markImg.height
+      ctx = oc.getContext('2d')
+      ctx.drawImage(markImg, 0, 0, markImg.width, markImg.height)
+      isMarked = (x, y) =>
+        p = @img.getAbsoluteTransform().point({x: x, y: y})
+        return ctx.getImageData(p.x, p.y, 1, 1).data[3] > 0
+
+      document = new ImageWrapper(original, isMarked)
+
+      #transform that found point back to canvas coordinates
+      transformBack = (pos) =>
+        newPos =
+          x: pos.x * @img.width() / original.width
+          y: pos.y * @img.height() / original.height
+        newPos = @img.getAbsoluteTransform().copy().point(newPos)
+
+      dots = @markLayer.getChildren().toArray()
+      if dots.length > 0
+        firstMarkedDot = { x: dots[0].x(), y: dots[0].y() }
+
+      for rawPoint in new GraphAnalyser(document).analyse(firstMarkedDot)
+        console.log rawPoint
+        absolutePos = transformBack rawPoint
+        POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
+
+    markImg.src = @markLayer.toDataURL()
+
   setControlsPosition: =>
     halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height()) / 2
     degr = Math.atan(@img.height() / @img.width()) * 180 / Math.PI
