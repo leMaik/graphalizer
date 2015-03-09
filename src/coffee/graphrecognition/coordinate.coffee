@@ -8,3 +8,10 @@ class Coordinate
     c.x == -1 and c.y == -1
 
   fromObject: (obj) -> new Coordinate(obj.x, obj.y)
+
+makeCoordinate: ->
+  switch arguments.length
+      when 1 then return {x: arguments[0].x, y: arguments[0].y}
+      when 2 then return {x: arguments[0], y: arguments[1]}
+      else
+        return Coordinate::invalid()

@@ -6,8 +6,20 @@
 class GraphAnalyser
   constructor: (@parentDocument, @toleranceSettings = ToleranceSettings::default(),
                 @environmentSettings = EnvironmentSettings::default(),
-                @reductionSettings = ReductionSettings::default()) ->
+                @reductionSettings = ReductionSettings::default(),
+                @qualitySettings = QualitySettings::default()) ->
     @graphColor = [0, 0, 0]
+
+  findAnyMarkedRegion: (gridSize = 10) ->
+    x = 0
+    y = 0
+    while x < @parentDocument.getWidth()
+      while y < @parentDocument.getHeight()
+        if @parentDocument.isMarked(x, y)
+          return {x: x, y: y}
+        y += gridSize
+      x += gridSize
+    return Coordinate::invalid()
 
   findGraphInProximity: (origin, maximumRadius = 100) =>
     bgColor = @environmentSettings.backgroundColor;
@@ -94,7 +106,7 @@ class GraphAnalyser
     point = switch arguments.length
       when 1 then arguments[0]
       when 2 then {x: arguments[0], y: arguments[1]}
-    return @toleranceSettings.isTolerated(@graphColor, @parentDocument.getPixel point)
+    return not @toleranceSettings.isTolerated(@environmentSettings.backgroundColor, @parentDocument.getPixel point)
 
   # Used in 'findLeftMostBottomPoint
   seekToLeftBottom: (origin) =>
@@ -111,13 +123,13 @@ class GraphAnalyser
   findUpMost: (origin) =>
     while origin.y > 0 and @isWithinGraph({x: origin.x, y: origin.y-1})
       origin.y--
-    return {x: origin.x, y: origin.y}
+    return makeCoordinate origin # deep copy
 
   findLowest: (origin) =>
     documentHeight = @parentDocument.getHeight()
     while origin.y < documentHeight and @isWithinGraph({x: origin.x, y: origin.y+1})
       origin.y++
-    return {x: origin.x, y: origin.y}
+    return makeCoordinate origin # deep copy
 
   # This function seeks the leftest and most bottom point of the graph
   # under the passed position (origin). It uses the member variable 'graphColor'
@@ -159,6 +171,54 @@ class GraphAnalyser
       return {x: origin.x + 1, y: origin.y - i} if @isWithinGraph({x: origin.x + 1, y: origin.y - i})
     return undefined
 
+  # performs an initial removal of points
+  initialClean: (origin) ->
+
+  findUpMostMarked: (origin) ->
+    while origin.y > 0 and @parentDocument.isMarked {x: origin.x, y: origin.y-1}
+      origin.y--
+    return makeCoordinate origin # deep copy
+
+  findLowestMarked: (origin) ->
+    documentHeight = @parentDocument.getHeight()
+    while origin.y < documentHeight and @parentDocument.isMarked {x: origin.x, y: origin.y+1}
+      origin.y++
+    return makeCoordinate origin # deep copy
+
+  getCenterOfMass: (origin) ->
+    upMost = @findUpMostMarked origin
+    lowest = @findLowestMarked origin
+
+    posAccum = []
+    for y in [upMost.y .. lowest.y]
+      if @isWithinGraph makeCoordinate(origin.x, y)
+        posAccum.push y
+
+    if @qualitySettings.heuristic == HeuristicTypes.median
+      posAccum.sort()
+      if posAccum.length() == 0
+        return 0
+      else
+        return posAccum[posAccum.length() / 2]
+    else # mean and unimplemented (mean is fallback)
+      return Util.mean posAccum
+
+  gatherGraphPoints: (origin) ->
+    list = []
+    originalOrigin = makeCoordinate origin
+    while origin.x < @parentDocument.getWidth() and @parentDocument.isMarked origin
+      origin.y = @getCenterOfMass origin
+      list.push origin
+      ++origin.x
+
+    origin = originalOrigin
+    while origin.x > 0 and @parentDocument.isMarked origin
+      origin.y = @getCenterOfMass origin
+      list.push origin
+      --origin.x
+
+    return list
+
   # Separates the graph into several points
   transectGraph: (origin) =>
     set = []
@@ -186,22 +246,30 @@ class GraphAnalyser
 
     return set
 
-  analyse: (origin) =>
-    # Find graph near the specified point
-    anyPointOfGraph = @findGraphInProximity origin
+  analyse: =>
+    # Find marked region
+    anyMarkedPoint = @findAnyMarkedRegion()
 
-    console.log anyPointOfGraph
+    console.log anyMarkedRegion
 
     # Has a point beend found? no?
-    return undefined if anyPointOfGraph is Coordinate::invalid()
+    return undefined if anyMarkedPoint is Coordinate::invalid()
+
+    # Removes points from graph
+    if @qualitySettings.eliminatePoints
+      @initialClean anyMarkedPoint
+
+    result = @gatherGraphPoints anyMarkedPoint
+
+    return result
 
     # Get the graph color for further analysis
-    @graphColor = @parentDocument.getPixel anyPointOfGraph
+    # @graphColor = @parentDocument.getPixel anyPointOfGraph
 
     # Find the beginning of the graph
-    startingPoint = @findLeftMostBottomPoint anyPointOfGraph
+    # startingPoint = @findLeftMostBottomPoint anyPointOfGraph
 
     # Finally get an array of points that represent the graph
-    return @transectGraph startingPoint
+    # return @transectGraph startingPoint
 
 

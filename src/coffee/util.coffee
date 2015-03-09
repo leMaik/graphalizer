@@ -17,6 +17,12 @@ class Util
 
     return { width: newWidth, height: newHeight }
 
+  mean: (arr) ->
+    accum = 0
+    for val in arr
+      accum += val
+    return val / arr.length()
+
   log10: (x) -> Math.log(x) / Math.log(10) #Math.log is to base e
 
 # a ko.observable that will automatically convert values to float

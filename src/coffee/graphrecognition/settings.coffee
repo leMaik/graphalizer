@@ -20,3 +20,14 @@ class ReductionSettings
   constructor: (@resolutionPermille = 50, @circularSearchSkip = 1) ->
 
   default: -> new ReductionSettings()
+
+HeuristicTypes =
+  mean : 0
+  median: 1
+  gravity: 2 # not yet supported
+
+# Contains toggle switches for algorithms that improve the analysis, but come at decent a cost of runtime
+class QualitySettings
+  constructor: (@heuristic = HeuristicsTypes.mean, @eliminatePoints = no, @skimmingFactor = 0.09, @regressiveAutoAdjust = no) ->
+
+  default: -> new QualitySettings()
