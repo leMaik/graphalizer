@@ -205,7 +205,7 @@ class GraphAnalyser
 
   gatherGraphPoints: (origin) ->
     list = []
-    originalOrigin = makeCoordinate origin
+    originalOrigin = @makeCoordinate origin
     while origin.x < @parentDocument.getWidth() and @parentDocument.isMarked origin
       origin.y = @getCenterOfMass origin
       list.push origin
@@ -250,7 +250,7 @@ class GraphAnalyser
     # Find marked region
     anyMarkedPoint = @findAnyMarkedRegion()
 
-    console.log anyMarkedRegion
+    console.log anyMarkedPoint
 
     # Has a point beend found? no?
     return undefined if anyMarkedPoint is Coordinate::invalid()
