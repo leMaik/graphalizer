@@ -4,6 +4,7 @@ class GraphalizerViewModel
     @points = POINTS
     @selectedAxis = ko.observable(null)
     @isAxisSelected = ko.computed => @selectedAxis() isnt null
+    @markRadius = ko.observable 20
 
     @mode = ko.observable('setup')
     @mode.subscribe (mode) =>
@@ -147,6 +148,13 @@ $ ->
     $(this).parent().children('.active').removeClass('active')
     $(this).addClass('active')
     GUI.mode 'mark'
+
+  $('#canvas').bind 'wheel', (event) ->
+    if GUI.mode() is 'mark'
+      if event.originalEvent.wheelDelta < 0 or event.originalEvent.detail > 0
+        GUI.markRadius Math.max(GUI.markRadius() - 1, 1)
+      else
+        GUI.markRadius GUI.markRadius() + 1
 
 class TemplateWrapper
   constructor: (@rootNode) ->

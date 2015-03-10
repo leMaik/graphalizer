@@ -47,6 +47,15 @@ class ScalableImage
     Layers.PAPER.add(@img).draw()
     @markLayer = new Kinetic.Layer()
     STAGE.add(@markLayer)
+    @markCursor = new Kinetic.Circle
+      radius: GUI.markRadius()
+      fill: 'red'
+      opacity: 0
+      hitFunc: -> #disable hitting
+    @markLayer.add @markCursor
+    GUI.markRadius.subscribe =>
+      @markCursor.radius(GUI.markRadius())
+      @markLayer.draw()
 
     @resize = null
     @rotate = null
@@ -71,18 +80,34 @@ class ScalableImage
     @img.on 'mouseup', =>
       @isDrawing(no) if GUI.mode() is 'mark'
     @img.on 'mouseout', =>
-      @isDrawing(no) if GUI.mode() is 'mark'
+      if GUI.mode() is 'mark'
+        @markCursor.opacity(0)
+        @markLayer.draw()
+        @isDrawing(no)
+        delete @prevDrawPos
     @img.on 'mousemove', =>
-      if @isDrawing()
-        mousePos = STAGE.getPointerPosition()
-        relative = @img.getAbsoluteTransform().copy().invert().point(mousePos) #get mouse position relative to @img
-        @markLayer.add(new Kinetic.Circle
-          x: mousePos.x
-          y: mousePos.y
-          radius: 20
-          fill: 'red',
-          hitFunc: -> #disable hitting
-        ).draw()
+      mousePos = STAGE.getPointerPosition()
+      if GUI.mode() is 'mark'
+        @markCursor.opacity(1).x(mousePos.x).y(mousePos.y).radius(GUI.markRadius())
+        if @isDrawing()
+          if @prevDrawPos?
+            @markLayer.add(new Kinetic.Line
+              points: [mousePos.x, mousePos.y, @prevDrawPos.x, @prevDrawPos.y]
+              strokeWidth: GUI.markRadius() * 2
+              stroke: 'red'
+              lineCap: 'round'
+              hitFunc: -> #disable hitting
+            )
+          else
+            @markLayer.add(new Kinetic.Circle
+              x: mousePos.x
+              y: mousePos.y
+              radius: GUI.markRadius()
+              fill: 'red'
+              hitFunc: -> #disable hitting
+            )
+        @markLayer.draw()
+        @prevDrawPos = {x: mousePos.x, y: mousePos.y}
     @img.on 'dragmove', =>
       if @isEditing()
         @setControlsPosition()
