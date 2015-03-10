@@ -111,6 +111,9 @@ class ScalableImage
       ctx.drawImage(markImg, 0, 0, markImg.width, markImg.height)
       isMarked = (x, y) =>
         p = @img.getAbsoluteTransform().point({x: x, y: y})
+        p =
+          x: p.x * @img.width() / original.width
+          y: p.y * @img.height() / original.height
         return ctx.getImageData(p.x, p.y, 1, 1).data[3] > 0
       console.log "(0,0) marked = " + isMarked(0, 0)
       document = new ImageWrapper(original, isMarked)
