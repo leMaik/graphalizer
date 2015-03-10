@@ -67,6 +67,10 @@ class GraphalizerViewModel
   rightMost: (axis) =>
     @axes().indexOf(axis) < @axes().length - 1
 
+  showResultsWindow: =>
+    window = GUI.showWindow GUI.template('resultsWindow'), $('#analyzeGroup')
+    ko.applyBindings(this, window.root())
+
   template: (name, vars) ->
     __templates[name](vars)
 
@@ -87,12 +91,45 @@ $ ->
   GUI = new GraphalizerViewModel()
   ko.applyBindings(GUI)
 
-  GUI.showWindow = (content) ->
+  GUI.showWindow = (content, fadeFrom) ->
+    GUI._currentWindowFrom = fadeFrom
     overlay = $('<div class="overlay"><div class="window"/></div>').hide().appendTo('body')
-    new TemplateWrapper overlay.fadeIn(200).find('.window').html(content)
+    w = overlay.fadeIn(200).find('.window').html(content)
+    targetWidth = w.width()
+    targetHeight = w.height()
+    if fadeFrom?
+      fadeFrom.css("position", "absolute")
+      w.find('.scroll').css('max-height', '100%')
+      w.width(fadeFrom.width() - 30).height(fadeFrom.height() - 40)
+      .css({position: 'absolute', left: fadeFrom.offset().left, top: fadeFrom.offset().top - 100})
+      .animate
+          width: targetWidth
+          height: 0.8 * window.innerHeight
+          top: 0
+          left: (window.innerWidth - targetWidth) / 2
+        , 500
+      fadeFrom.css("position", null).fadeOut(100)
+      console.log targetWidth
+    new TemplateWrapper w
 
   GUI.closeWindow = ->
-    $('.overlay').fadeOut 200
+    if GUI._currentWindowFrom?
+      fadeFrom = GUI._currentWindowFrom
+      w = $('.overlay').find('.window').css('overflow', 'hidden')
+      fadeFrom.css("position", "absolute").show()
+      console.log fadeFrom.offset()
+      w.animate
+        width: fadeFrom.width() + 20
+        height: fadeFrom.height() + 10
+        top: fadeFrom.offset().top - 100 #100 is marginTop
+        left: fadeFrom.offset().left
+      , 500, ->
+        $('.overlay').fadeOut(100)
+        fadeFrom.show()
+      fadeFrom.hide().css("position", null)
+      delete GUI._currentWindowFrom
+    else
+      $('.overlay').fadeOut 200
     $('.overlay *').off() #make sure all event handlers are detached
     ko.cleanNode $('.overlay')[0]
 

@@ -5,7 +5,7 @@
 </p>
 
 <h2>Credits</h2>
-<div class="scroll" style="max-height: 400px">
+<div class="scroll">
     <!-- ko foreach: credits -->
     <h3 data-bind="text: name"></h3>
 

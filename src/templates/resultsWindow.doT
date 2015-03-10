@@ -1,0 +1,24 @@
+<div class="scroll">
+    <table class="values">
+        <tr data-bind="foreach: axes">
+            <th>
+                <img src="res/left2.svg" width="20" height="20" alt="&larr;"
+                     data-bind="click: $parent.moveLeft, visible: !isFirst()"/>
+                <span data-bind="text: name"></span>
+                <img src="res/right2.svg" width="20" height="20" alt="&rarr;"
+                     data-bind="click: $parent.moveRight, visible: !isLast()"/>
+            </th>
+        </tr>
+        <!-- ko foreach: points -->
+        <tr data-bind="foreach: values">
+            <td data-bind="text: $data"></td>
+        </tr>
+        <!-- /ko -->
+    </table>
+</div>
+<div class="buttons">
+    <button class="flat" data-bind="click: closeWindow">OK</button>
+    <button class="flat" data-bind="click: exportCsv, visible: points().length > 0">
+        Als CSV speichern
+    </button>
+</div>
