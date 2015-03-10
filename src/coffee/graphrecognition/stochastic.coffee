@@ -1,6 +1,8 @@
 # StdDeviation, Mean, Median, etc.
 StochasticHelpers =
   mean: (arr) ->
+    if arr.length == 0
+      throw "mean of empty array ist not allowed"
     accum = 0
     for v in arr
       accum += v

@@ -14,6 +14,7 @@ class GraphAnalyser
     x = 0
     y = 0
     while x < @parentDocument.getWidth()
+      y = 0
       while y < @parentDocument.getHeight()
         if @parentDocument.isMarked(x, y)
           return {x: x, y: y}
@@ -185,37 +186,82 @@ class GraphAnalyser
       origin.y++
     return new Coordinate(origin) # deep copy
 
-  getCenterOfMass: (origin) ->
-    upMost = @findUpMostMarked origin
-    lowest = @findLowestMarked origin
+  findNextMarked: (origin, offset) ->
+    x = origin.x + offset
 
+    upSeek = Math.max(origin.y - @qualitySettings.markingFinderTolerance, 0);
+    downSeek = Math.min(origin.y + @qualitySettings.markingFinderTolerance, @parentDocument.getHeight())
+
+    while upSeek > 0 && @parentDocument.isMarked(x, upSeek)
+      --upSeek
+    while downSeek < @parentDocument.getHeight() && @parentDocument.isMarked(x, downSeek)
+      ++downSeek
+
+    markedRegions = []
+    up = 0
+    curGraphContainmet = 0
+    markedState = no
+
+    for y in [upSeek..downSeek]
+      if @isWithinGraph(x, y)
+        curGraphContainment++
+
+      if not markedState and @parentDocument.isMarked(x, y)
+        up = y
+        curGraphContainment = 0
+        markedState = yes
+
+      if markedState and not @parentDocument.isMarked(x, y)
+        markedRegions.push {up: up, down: y - 1, graphContainment: curGraphContainment}
+        markedState = no
+
+    if markedState
+      markedRegions.push {up: up, down: downSeek - 1, graphContainment: curGraphContainment}
+
+    if markedRegions.length == 0
+      return Coordinate::invalid()
+
+    markedRegions.sort((a, b) ->
+      return b.graphContainment - a.graphContainment
+    )
+
+    return {x: x, y: (markedRegions[0].up + markedRegions[markedRegions.length - 1].down)/2}
+
+  getCenterOfMass: (origin, upMost, lowest) ->
     posAccum = []
     for y in [upMost.y .. lowest.y]
       if @isWithinGraph new Coordinate(origin.x, y)
         posAccum.push y
 
+    if posAccum.length == 0
+      return null
+
     if @qualitySettings.heuristic == HeuristicTypes.median
-      posAccum.sort()
-      if posAccum.length() == 0
-        return 0
-      else
-        return posAccum[posAccum.length() / 2]
+      return StochasticHelpers.median(posAccum)
     else # mean and unimplemented (mean is fallback)
-      return StochasticHelpers.mean posAccum
+      return StochasticHelpers.mean(posAccum)
 
   gatherGraphPoints: (origin) ->
     list = []
-    originalOrigin = new Coordinate(origin)
-    while origin.x < @parentDocument.getWidth() and @parentDocument.isMarked origin
-      origin.y = @getCenterOfMass origin
-      list.push origin
-      ++origin.x
 
-    origin = originalOrigin
-    while origin.x > 0 and @parentDocument.isMarked origin
-      origin.y = @getCenterOfMass origin
-      list.push origin
-      --origin.x
+    position = origin
+
+    inLoop = (offset) =>
+      up = @findUpMostMarked(position)
+      down = @findLowestMarked(position)
+
+      center = @getCenterOfMass(position, up, down)
+      if center
+        list.push new Coordinate(position.x, center)
+
+      position = @findNextMarked(position, offset)
+      console.log new Coordinate(position.x, center)
+      return !position.isInvalid
+
+    continue while position.x < @parentDocument.getWidth() and inLoop(1)
+
+    position = origin
+    continue while position.x > 0 and inLoop(-1)
 
     return list
 
@@ -246,8 +292,13 @@ class GraphAnalyser
 
     return set
 
-  analyse: =>
-    # Find marked region
+  analyse: (startingPoint) =>
+    anyMarkedPoint = new Coordinate
+
+    # if startingPoint?
+    #   anyMarkedPoint = startingPoint
+    # else
+      # Find marked region
     anyMarkedPoint = @findAnyMarkedRegion()
 
     console.log anyMarkedPoint
@@ -260,6 +311,9 @@ class GraphAnalyser
       @initialClean anyMarkedPoint
 
     result = @gatherGraphPoints anyMarkedPoint
+
+    console.log "result incoming"
+    console.log result
 
     return result
 

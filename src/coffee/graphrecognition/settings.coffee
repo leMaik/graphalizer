@@ -28,6 +28,6 @@ HeuristicTypes =
 
 # Contains toggle switches for algorithms that improve the analysis, but come at decent a cost of runtime
 class QualitySettings
-  constructor: (@heuristic = HeuristicTypes.mean, @eliminatePoints = no, @skimmingFactor = 0.09, @regressiveAutoAdjust = no) ->
+  constructor: (@heuristic = HeuristicTypes.median, @markingFinderTolerance = 10, @eliminatePoints = no, @skimmingFactor = 0.09, @regressiveAutoAdjust = no) ->
 
   default: -> new QualitySettings()
