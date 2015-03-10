@@ -1,14 +1,26 @@
 <h1>Graphalizer</h1>
 
 <p>
-    Copyright &copy; 2014&ndash;2015 Tim Ebbeke und Maik Marschner
+    Copyright &copy; 2014&ndash;2015 Tim Ebbeke, Maik Marschner
 </p>
-
 
 <h2>Credits</h2>
-<p>
-    [insert all the credits here]
-</p>
+<div class="scroll" style="max-height: 400px">
+    <!-- ko foreach: credits -->
+    <h3 data-bind="text: name"></h3>
+
+    <p class="credits">
+        <strong>Autoren:</strong> <span data-bind="text: authors"></span><br/>
+        <strong>Website:</strong> <a data-bind="attr: { href: website }, text: website" target="_blank"></a><br/>
+        <!-- ko if: hasLicense -->
+        <strong>Lizenz:</strong> <span data-bind="text: license"></span>
+        <!-- ko if: typeof licenseText !== 'undefined' -->
+        <br/><span class="license" data-bind="html: licenseText"></span>
+        <!-- /ko -->
+        <!-- /ko -->
+    </p>
+    <!-- /ko -->
+</div>
 
 <div class="buttons">
     <button class="flat" data-bind="click: close">OK</button>

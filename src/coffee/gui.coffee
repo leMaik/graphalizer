@@ -73,6 +73,8 @@ class GraphalizerViewModel
   showAboutDialog: ->
     class aboutVm
       constructor: ->
+        @credits = Credits.credits
+
         window = GUI.showWindow GUI.template('about')
         ko.applyBindings(this, window.root())
 
