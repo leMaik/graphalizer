@@ -30,7 +30,7 @@ class GraphalizerViewModel
     saveAs(new Blob([csv], {type: 'application/csv'}), 'graphalizer.csv')
 
   removeMarkings: ->
-    img.markLayer.removeChildren().draw() for img in IMAGES
+    img.removeMarkings() for img in IMAGES
 
   addVerticalAxis: ->
     newAxis = new VerticalAxis()

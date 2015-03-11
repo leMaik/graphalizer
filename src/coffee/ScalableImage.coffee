@@ -246,3 +246,6 @@ class ScalableImage
 
   showMarkings: => @markLayer.opacity(1).draw()
   hideMarkings: => @markLayer.opacity(0).draw()
+
+  removeMarkings: =>
+    @markLayer.removeChildren().add(@markCursor).draw()
