@@ -293,27 +293,42 @@ class GraphAnalyser
     return set
 
   analyse: (startingPoint) =>
-    anyMarkedPoint = new Coordinate
+    # anyMarkedPoint = new Coordinate
 
     # if startingPoint?
     #   anyMarkedPoint = startingPoint
     # else
       # Find marked region
-    anyMarkedPoint = @findAnyMarkedRegion()
+    # anyMarkedPoint = @findAnyMarkedRegion()
 
-    console.log anyMarkedPoint
+    # console.log anyMarkedPoint
 
     # Has a point beend found? no?
-    return undefined if anyMarkedPoint is Coordinate::invalid()
+    # return undefined if anyMarkedPoint is Coordinate::invalid()
 
     # Removes points from graph
-    if @qualitySettings.eliminatePoints
-      @initialClean anyMarkedPoint
+    # if @qualitySettings.eliminatePoints
+    #   @initialClean anyMarkedPoint
 
-    result = @gatherGraphPoints anyMarkedPoint
+    # result = @gatherGraphPoints anyMarkedPoint
 
-    console.log "result incoming"
-    console.log result
+    # console.log "result incoming"
+    # console.log result
+
+    points = [new Coordinate(28, 39), new Coordinate(29, 38), new Coordinate(30, 37),
+              new Coordinate(33, 32), new Coordinate(34, 30), new Coordinate(31, 50),
+              new Coordinate(35, 5)]
+
+    ransac = new LinearRansac(4, 2)
+    iterations = ransac.estimateIterations(points.length, 0.99, 0.25)
+    polynom = ransac.compute(points, 4, iterations)
+
+    result = []
+
+    counter = 0
+    for c in polynom.coefficients
+      result.push {x: counter, y: c}
+      counter++
 
     return result
 
