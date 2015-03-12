@@ -18,8 +18,8 @@ class GraphalizerViewModel
         img.hideMarkings() for img in IMAGES
 
   removeAllPoints: =>
-    p.remove() for p in @points().slice() #iterate over copy
-    Layers.POINTS.draw()
+    @points.removeAll()
+    Layers.POINTS.removeChildren().draw()
     return
 
   exportCsv: =>
