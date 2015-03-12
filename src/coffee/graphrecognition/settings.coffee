@@ -17,17 +17,22 @@ class EnvironmentSettings
 
 # The default resolution is still plenty of values
 class ReductionSettings
-  constructor: (@resolutionPermille = 50, @circularSearchSkip = 1) ->
+  constructor: (@resolutionPermille = 200, @circularSearchSkip = 1) ->
 
   default: -> new ReductionSettings()
 
 HeuristicTypes =
   mean : 0
   median: 1
-  gravity: 2 # not yet supported
+  top: 2
+  bottom: 3
 
 # Contains toggle switches for algorithms that improve the analysis, but come at decent a cost of runtime
 class QualitySettings
-  constructor: (@heuristic = HeuristicTypes.median, @markingFinderTolerance = 10, @eliminatePoints = no, @skimmingFactor = 0.09, @regressiveAutoAdjust = no) ->
+  # heuristic = find center of graph heuristic
+  # markingFinderTolerance = findNextMarked looks additional "markingFinderTolerance" points up and down in y direction to catch it all
+  # eliminatePoints = elimininate outliers using RANSAC and delta loss
+  # eliminationQuality = RANSAC iterations (the higher the better, the slower)
+  constructor: (@heuristic = HeuristicTypes.median, @markingFinderTolerance = 10, @eliminatePoints = yes, @eliminationQuality = 50, averageDelta = 4) ->
 
   default: -> new QualitySettings()
