@@ -269,6 +269,8 @@ class GraphAnalyser
         list.push [new Coordinate(position.x, infoTriplet[0]), infoTriplet[2] - infoTriplet[1]]
         # console.log new Coordinate(position.x, infoTriplet[0])
         @analyserProgressCallback.onProgress(++progress)
+      else
+        console.log "warning. no point found @ %d", position.x
 
       position = @findNextMarked(position, offset)
       return not (position.x == -1 and position.y == -1)
@@ -286,13 +288,13 @@ class GraphAnalyser
       return []
 
     result = []
-    prev = points[0]
-    i = 1
-    while i < points.length
-      if points[i].x - prev.x >= (@parentDocument.getWidth() / (@reductionSettings.resolutionPermille * @parentDocument.getWidth() / 1000))
-        result.push points[i]
-        prev = points[i]
-      ++i
+    dist = Math.ceil(@parentDocument.getWidth() / (@reductionSettings.resolutionPermille * @parentDocument.getWidth() / 1000))
+    counter = 0
+    for i in points
+      if counter > dist
+        result.push i
+        counter = 0
+      counter++
     return result
 
   lineHeightAverage: (heightList) ->
