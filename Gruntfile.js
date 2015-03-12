@@ -47,16 +47,16 @@ module.exports = function (grunt) {
             less: {
                 build: {
                     options: {
-                        cleancss: true
+                        compress: true
                     },
                     files: {
-                        "build/css/test.css": "src/css/test.less"
+                        "build/css/style.css": "src/css/style.less"
                     }
                 },
                 debug: {
                     options: {},
                     files: {
-                        "build/css/test.css": "src/css/test.less"
+                        "build/css/style.css": "src/css/style.less"
                     }
                 }
             },
