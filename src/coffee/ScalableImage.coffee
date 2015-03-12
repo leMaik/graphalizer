@@ -152,7 +152,10 @@ class ScalableImage
         absolutePos = @_transformBack rawPoint
         POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
 
+    oldOpacity = @markLayer.opacity()
+    @markLayer.opacity(1).draw()
     markImg.src = @markLayer.toDataURL()
+    @markLayer.opacity(oldOpacity).draw()
 
   setControlsPosition: =>
     halfDiag = Math.sqrt(@img.width() * @img.width() + @img.height() * @img.height()) / 2
