@@ -1,4 +1,4 @@
-class Polynom
+class Polynomial
   # accepts a list of coefficients that are in this order: c[0] + c[1]x + c[2]x^2
   constructor: (@coefficients) ->
 
