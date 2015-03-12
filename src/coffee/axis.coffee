@@ -301,12 +301,12 @@ class VerticalAxis extends Axis
         x: @line.x() - 5
         y: mark.px
       txt = new Kinetic.Text
-        x: @line.x() - 25
-        y: mark.px - 4
         text: mark.val.toFixed(2)
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: Colors.primary
+      txt.x @line.x() - txt.getTextWidth() - 7
+      txt.y mark.px - txt.getTextHeight() / 2
       @axis.add(a).add(txt)
       @marks.push a
       @marks.push txt
