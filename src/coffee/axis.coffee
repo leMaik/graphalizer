@@ -191,12 +191,11 @@ class HorizontalAxis extends Axis
         x: mark.px
         y: @line.y() - 5
       txt = new Kinetic.Text
-        x: mark.px - 5
-        y: @line.y() + 7
         text: mark.val.toFixed(2)
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: Colors.primary
+      txt.x(mark.px - txt.getTextWidth() / 2).y(@line.y() + 7)
       @axis.add(a).add(txt)
       @marks.push a
       @marks.push txt
@@ -305,8 +304,7 @@ class VerticalAxis extends Axis
         fontSize: 10
         fontFamily: 'sans-serif'
         fill: Colors.primary
-      txt.x @line.x() - txt.getTextWidth() - 7
-      txt.y mark.px - txt.getTextHeight() / 2
+      txt.x(@line.x() - txt.getTextWidth() - 7).y(mark.px - txt.getTextHeight() / 2)
       @axis.add(a).add(txt)
       @marks.push a
       @marks.push txt
