@@ -19,6 +19,6 @@
 <div class="buttons">
     <button class="flat" data-bind="click: closeWindow">OK</button>
     <button class="flat" data-bind="click: exportCsv, visible: points().length > 0">
-        Als CSV speichern
+        CSV exportieren
     </button>
 </div>

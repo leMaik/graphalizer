@@ -13,9 +13,8 @@ class AnalyzeValue
     .on 'click', =>
       @controls.deleteBtn.remove()
       Layers.PAPER.draw()
-      @kineticElement.remove()
+      @remove()
       Layers.POINTS.draw()
-      POINTS.remove @
 
     @isEditing = ko.observable(no)
     @isEditing.subscribe (v) =>
@@ -50,3 +49,7 @@ class AnalyzeValue
     Layers.POINTS.add(@kineticElement).draw()
 
     @values = ko.computed => axis.valueAt(@x(), @y()) for axis in AXES()
+
+  remove: =>
+    @kineticElement.remove()
+    POINTS.remove @

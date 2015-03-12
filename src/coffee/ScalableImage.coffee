@@ -140,7 +140,7 @@ class ScalableImage
           x: p.x * @img.width() / original.width
           y: p.y * @img.height() / original.height
         return ctx.getImageData(p.x, p.y, 1, 1).data[3] > 0
-      console.log "(0,0) marked = " + isMarked(0, 0)
+
       document = new ImageWrapper(original, isMarked)
 
       dots = @markLayer.getChildren().toArray()
@@ -148,7 +148,6 @@ class ScalableImage
         firstMarkedDot = {x: dots[0].x(), y: dots[0].y()}
 
       for rawPoint in new GraphAnalyser(document).analyse(firstMarkedDot)
-        console.log rawPoint
         absolutePos = @_transformBack rawPoint
         POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
 
