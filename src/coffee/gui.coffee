@@ -114,7 +114,7 @@ $ ->
           top: 0
           left: (window.innerWidth - targetWidth) / 2
         , 500
-      fadeFrom.css("position", null).fadeOut(100)
+      fadeFrom.css("position", null).fadeOut(100, -> $(@).css('opacity', 0))
       console.log targetWidth
     new TemplateWrapper w
 
@@ -132,7 +132,7 @@ $ ->
       , 500, ->
         $('.overlay').fadeOut(100)
         fadeFrom.show()
-      fadeFrom.hide().css("position", null)
+      fadeFrom.hide().css("position", null).css('opacity', 1)
       delete GUI._currentWindowFrom
     else
       $('.overlay').fadeOut 200
