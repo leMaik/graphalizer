@@ -17,6 +17,10 @@ class GraphalizerViewModel
       else
         img.hideMarkings() for img in IMAGES
 
+    @analyzeSettings =
+      resolutionPermille: ko.numericObservable ReductionSettings::default().resolutionPermille
+      eliminatePoints: ko.observable QualitySettings::default().eliminatePoints
+
   removeAllPoints: =>
     @points.removeAll()
     Layers.POINTS.removeChildren().draw()
@@ -49,7 +53,7 @@ class GraphalizerViewModel
 
   analyzeDocuments: ->
     for image in IMAGES
-      image.analyze()
+      image.analyze(@analyzeSettings)
 
   moveLeft: (axis) =>
     i = @axes().indexOf(axis)

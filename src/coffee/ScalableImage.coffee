@@ -123,7 +123,7 @@ class ScalableImage
       x: pos.x * @img.width() / original.width
       y: pos.y * @img.height() / original.height
 
-  analyze: =>
+  analyze: (settings) =>
     original = @img.image();
 
     #wrap the image for the analyzer
@@ -147,7 +147,11 @@ class ScalableImage
       if dots.length > 0
         firstMarkedDot = {x: dots[0].x(), y: dots[0].y()}
 
-      for rawPoint in new GraphAnalyser(document).analyse(firstMarkedDot)
+      analyzer = new GraphAnalyser(document)
+      analyzer.qualitySettings.eliminatePoints = settings.eliminatePoints()
+      analyzer.reductionSettings.resolutionPermille = settings.resolutionPermille()
+
+      for rawPoint in analyzer.analyse(firstMarkedDot)
         absolutePos = @_transformBack rawPoint
         POINTS.push new AnalyzeValue(absolutePos.x, absolutePos.y)
 

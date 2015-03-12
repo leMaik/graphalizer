@@ -74,7 +74,24 @@
             </div>
             <div class="clear">&nbsp;</div>
         </div>
-        <div class="group" data-bind="visible: axes().length > 0" id="analyzeGroup">
+        <div class="group" data-bind="visible: mode() == 'analyze'">
+            <h1>Automatische Erkennung</h1>
+
+            <div class="ctn">
+                <label>Relative Wertedichte (&permil;)</label>
+                <input type="number" data-bind="textInput: analyzeSettings.resolutionPermille" min="1" max="1000"
+                       step="any"/>
+
+                <label>Fehlerkorrektur</label>
+                <input type="checkbox" data-bind="checked: analyzeSettings.eliminatePoints"/>
+
+                <button class="h25 w100 primary" data-bind="click: analyzeDocuments">
+                    Erkennung starten
+                </button>
+            </div>
+            <div class="clear">&nbsp;</div>
+        </div>
+        <div class="group" data-bind="visible: axes().length > 0 && mode() == 'analyze'" id="analyzeGroup">
             <h1>Analysieren
                 <button class="inline r circle flat" data-bind="click: showResultsWindow">
                     <img src="res/open_in_new_primary.svg"/>
@@ -82,9 +99,6 @@
             </h1>
 
             <div class="ctn">
-                <button class="h25 w100" data-bind="click: analyzeDocuments">
-                    Automatische Erkennung
-                </button>
                 <div style="clear: both;">
                     <table class="values">
                         <tr data-bind="foreach: axes">
