@@ -1,7 +1,7 @@
 class LeastSquare
   constructor: (@degree) ->
 
-  # returns least square polynom
+  # returns least square polynomial
   # see polynom.coffee
   regress: (points) ->
     util = new Util
@@ -29,6 +29,6 @@ class LeastSquare
     # solve equation
     solved = numeric.solve(lhsM, rhsV)
 
-    return new Polynom(solved)
+    return new Polynomial(solved)
 
 
