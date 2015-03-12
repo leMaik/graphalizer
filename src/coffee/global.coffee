@@ -4,6 +4,9 @@ IMAGES = []
 AXES = ko.observableArray()
 POINTS = ko.observableArray().extend({rateLimit: 100})
 shifted = no
+Colors =
+  primary: '#3F51B5'
+  secondary: '#E91E63'
 
 Layers =
   PAPER: new Kinetic.Layer()

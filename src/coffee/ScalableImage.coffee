@@ -49,7 +49,7 @@ class ScalableImage
     STAGE.add(@markLayer)
     @markCursor = new Kinetic.Circle
       radius: GUI.markRadius()
-      fill: 'red'
+      fill: Colors.secondary
       opacity: 0
       hitFunc: -> #disable hitting
     @markLayer.add @markCursor
@@ -94,7 +94,7 @@ class ScalableImage
             @markLayer.add(new Kinetic.Line
               points: [mousePos.x, mousePos.y, @prevDrawPos.x, @prevDrawPos.y]
               strokeWidth: GUI.markRadius() * 2
-              stroke: 'red'
+              stroke: Colors.secondary
               lineCap: 'round'
               hitFunc: -> #disable hitting
             )
@@ -103,7 +103,7 @@ class ScalableImage
               x: mousePos.x
               y: mousePos.y
               radius: GUI.markRadius()
-              fill: 'red'
+              fill: Colors.secondary
               hitFunc: -> #disable hitting
             )
         @markLayer.draw()

@@ -153,7 +153,7 @@ class HorizontalAxis extends Axis
 
   getLine: =>
     @line = new Kinetic.Rect
-      fill: 'red'
+      fill: Colors.primary
       width: 1
       height: 2
       draggable: yes
@@ -185,7 +185,7 @@ class HorizontalAxis extends Axis
     for mark in @getMarks()
       a = new Kinetic.Line
         points: [0, 0, 0, 10]
-        stroke: 'red'
+        stroke: Colors.primary
         strokeWidth: 1
         draggable: no
         x: mark.px
@@ -196,7 +196,7 @@ class HorizontalAxis extends Axis
         text: mark.val.toFixed(2)
         fontSize: 10
         fontFamily: 'sans-serif'
-        fill: 'gray'
+        fill: Colors.primary
       @axis.add(a).add(txt)
       @marks.push a
       @marks.push txt
@@ -263,7 +263,7 @@ class VerticalAxis extends Axis
 
   getLine: =>
     @line = new Kinetic.Rect
-      fill: 'red'
+      fill: Colors.primary
       width: 2
       height: 1
       draggable: yes
@@ -295,7 +295,7 @@ class VerticalAxis extends Axis
     for mark in @getMarks()
       a = new Kinetic.Line
         points: [0, 0, 10, 0]
-        stroke: 'red'
+        stroke: Colors.primary
         strokeWidth: 1
         draggable: no
         x: @line.x() - 5
@@ -306,7 +306,7 @@ class VerticalAxis extends Axis
         text: mark.val.toFixed(2)
         fontSize: 10
         fontFamily: 'sans-serif'
-        fill: 'gray'
+        fill: Colors.primary
       @axis.add(a).add(txt)
       @marks.push a
       @marks.push txt
