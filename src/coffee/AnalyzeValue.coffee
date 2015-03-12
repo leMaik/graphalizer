@@ -48,7 +48,7 @@ class AnalyzeValue
 
     Layers.POINTS.add(@kineticElement).draw()
 
-    @values = ko.computed => axis.valueAt(@x(), @y()) for axis in AXES()
+    @values = ko.computed(=> axis.valueAt(@x(), @y()) for axis in AXES()).extend({rateLimit: 500})
 
   remove: =>
     @kineticElement.remove()

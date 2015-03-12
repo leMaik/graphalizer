@@ -2,7 +2,7 @@ STAGE = null
 PAPER = null
 IMAGES = []
 AXES = ko.observableArray()
-POINTS = ko.observableArray()
+POINTS = ko.observableArray().extend({rateLimit: 100})
 shifted = no
 
 Layers =
@@ -52,39 +52,39 @@ $ ->
 
   $('body')
   .on('drop', (e) ->
-      e.stopPropagation();
-      e.preventDefault();
+    e.stopPropagation();
+    e.preventDefault();
 
-      files = e.originalEvent.dataTransfer.files #FileList object (contains Files)
-      if files.length == 0
-        return
-      if files.length > 1
-        alert 'Only one file at a time, please!'
-        return
-      f = files[0]
+    files = e.originalEvent.dataTransfer.files #FileList object (contains Files)
+    if files.length == 0
+      return
+    if files.length > 1
+      alert 'Only one file at a time, please!'
+      return
+    f = files[0]
 
-      console.log 'File added: %s (%s)', f.name, f.type
+    console.log 'File added: %s (%s)', f.name, f.type
 
-      if f.type.indexOf('image') == 0
-        reader = new FileReader()
-        reader.onload = (e) =>
-          img = new Image()
-          img.onload = () =>
-            IMAGES.push new ScalableImage(img)
-          img.src = e.target.result
-        reader.readAsDataURL(f)
-      else if f.type == 'application/pdf'
-        importer = new PdfImport(f)
-        importer.onImportPage = (img) =>
-          IMAGES.push(new ScalableImage(img))
-      else
-        alert 'Unsupported file type'
-    )
+    if f.type.indexOf('image') == 0
+      reader = new FileReader()
+      reader.onload = (e) =>
+        img = new Image()
+        img.onload = () =>
+          IMAGES.push new ScalableImage(img)
+        img.src = e.target.result
+      reader.readAsDataURL(f)
+    else if f.type == 'application/pdf'
+      importer = new PdfImport(f)
+      importer.onImportPage = (img) =>
+        IMAGES.push(new ScalableImage(img))
+    else
+      alert 'Unsupported file type'
+  )
   .on('dragover', (e) ->
-      e.stopPropagation()
-      e.preventDefault()
-      e.originalEvent.dataTransfer.dropEffect = 'copy' #/ Explicitly show this is a copy.
-    )
+    e.stopPropagation()
+    e.preventDefault()
+    e.originalEvent.dataTransfer.dropEffect = 'copy' #/ Explicitly show this is a copy.
+  )
 
   $(document).on 'keyup keydown', (e) ->
     shifted = e.shiftKey
