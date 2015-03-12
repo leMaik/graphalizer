@@ -1,29 +1,26 @@
-
 class ProgressHandler
-  constructor: (@progress, @start, @status) ->
+  constructor: (@handlers) ->
     @maxValue = 1
 
   onProgress: (value) ->
-    if @progress?
-      @progress(value, @maxValue)
+    if @handlers.onProgressChanged?
+      @handlers.onProgressChanged value, @maxValue, value / @maxValue * 100
 
   onStart: (maxVal) ->
     @maxValue = maxVal
-    if @start?
-      @start @maxValue
+    if @handlers.onStart?
+      @handlers.onStart @maxValue
 
   onStatus: (someStatusString) ->
-    if @status?
-      @status someStatusString
+    if @handlers.onStatusChanged?
+      @handlers.onStatusChanged someStatusString
 
 
 ConsoleProgressHandler = new ProgressHandler(
-  (value, maxValue) =>
-    console.log "Progress: %d/%d", value, maxValue
-  ,
-  (maxValue) =>
+  onProgressChanged: (value, maxValue, progress) =>
+    console.log "Progress: %d%%", progress
+  onStart: (maxValue) =>
     console.log "Start: %d", maxValue
-  ,
-  (status) =>
+  onStatusChanged: (status) =>
     console.log "Status: %s", status
 )
