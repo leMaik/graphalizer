@@ -122,7 +122,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-bell');
 
 //register tasks
     grunt.registerTask('default', ['clean:before', 'copy:src', 'coffee:build', 'dot', 'uglify:build', 'less:build', 'clean:after']);

@@ -1,0 +1,5 @@
+To build Graphalizer, use
+   $ npm install
+   $ grunt
+
+You can use `grunt debug` to prevent code minification and removal of console calls.
