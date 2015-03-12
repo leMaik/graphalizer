@@ -12,7 +12,7 @@ StochasticHelpers =
     if arr.length == 0
       throw "median of empty array is not allowed"
     arr.sort()
-    return arr[arr.length / 2]
+    return arr[Math.floor(arr.length / 2)]
 
   variance: (arr) ->
     mean = mean(arr)
