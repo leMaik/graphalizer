@@ -43,6 +43,12 @@ class Util
 
     return arr
 
+  clone = (obj) ->
+    return obj  if obj is null or typeof (obj) isnt "object"
+    temp = new obj.constructor()
+    for key of obj
+      temp[key] = clone(obj[key])
+    temp
 
 # a ko.observable that will automatically convert values to float
 ko.numericObservable = (v) ->
